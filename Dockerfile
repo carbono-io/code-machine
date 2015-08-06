@@ -1,4 +1,6 @@
-FROM node:0.10.39
-RUN mkdir code-machine
-ADD . /code-machine
-ENTRYPOINT ['node', '/code-machine']
+FROM node
+COPY . /code-machine
+
+EXPOSE 8000
+
+ENTRYPOINT ["node", "/code-machine/index.js"]
