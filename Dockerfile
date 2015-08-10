@@ -3,4 +3,4 @@ COPY . /code-machine
 
 EXPOSE 8000
 
-ENTRYPOINT ["node", "/code-machine/index.js"]
+ENTRYPOINT ["node", "/code-machine/cli/start.js"]

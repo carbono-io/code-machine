@@ -7,8 +7,8 @@ var express = require('express');
 var _       = require('lodash');
 
 // Internal dependencies
-var setupSocketIoServer   = require('./lib/socket-io-server');
-var createResourcesServer = require('./lib/resources-server');
+var setupSocketIoServer   = require('./app/socket-io-server');
+var createResourcesServer = require('./app/resources-server');
 
 // Constants
 var SERVICE_DESCRIPTION_OPTIONS = ['port', 'codeDir'];
