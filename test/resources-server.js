@@ -80,16 +80,85 @@ describe('Marked resources server', function () {
 
   });
 
-  it('Serves .css files without modification', function (testDone) {
+  it('Serves .js files from bower_components without modification', function (testDone) {
 
-    var scriptPath = 'app/styles/main.css';
+    var scriptPath = 'app/bower_components/page/page.js';
     var scriptUrl  = serverUrl + '/resources/marked/' + scriptPath;
 
     request(scriptUrl, function (err, res) {
 
+      res.statusCode.should.eql(200);
       res.body.should.not.be.false;
 
       fs.readFileSync(path.join(testCodeProjectDir, scriptPath), {
+        encoding: 'utf8'
+      })
+      .should.eql(res.body);
+
+      testDone();
+
+    }).on('error', function (err) {
+      testDone(err);
+    });
+
+  });
+
+
+  it('Serves .css files without modification', function (testDone) {
+
+    var stylesheetPath = 'app/styles/main.css';
+    var stylesheetUrl  = serverUrl + '/resources/marked/' + stylesheetPath;
+
+    request(stylesheetUrl, function (err, res) {
+
+      res.body.should.not.be.false;
+
+      fs.readFileSync(path.join(testCodeProjectDir, stylesheetPath), {
+        encoding: 'utf8'
+      })
+      .should.eql(res.body);
+
+      testDone();
+
+    }).on('error', function (err) {
+      testDone(err);
+    });
+
+  });
+
+  it('Serves .css files from bower_components without modification', function (testDone) {
+
+    var stylesheetPath = 'app/bower_components/paper-drawer-panel/paper-drawer-panel.css';
+    var stylesheetUrl  = serverUrl + '/resources/marked/' + stylesheetPath;
+
+    request(stylesheetUrl, function (err, res) {
+
+      res.headers['content-type'].should.eql('text/css; charset=UTF-8');
+      res.body.should.not.be.false;
+
+      fs.readFileSync(path.join(testCodeProjectDir, stylesheetPath), {
+        encoding: 'utf8'
+      })
+      .should.eql(res.body);
+
+      testDone();
+
+    }).on('error', function (err) {
+      testDone(err);
+    });
+
+  });
+
+  it('Serves .png files without modification', function (testDone) {
+
+    var stylesheetPath = 'app/images/touch/chrome-touch-icon-192x192.png';
+    var stylesheetUrl  = serverUrl + '/resources/marked/' + stylesheetPath;
+
+    request(stylesheetUrl, function (err, res) {
+
+      res.body.should.not.be.false;
+
+      fs.readFileSync(path.join(testCodeProjectDir, stylesheetPath), {
         encoding: 'utf8'
       })
       .should.eql(res.body);

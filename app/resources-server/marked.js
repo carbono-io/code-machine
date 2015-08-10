@@ -31,7 +31,7 @@ function createMarkedResourcesServer(options) {
   });
 
   // Then serve static files for all other extensions
-  app.use('/', express.static(options.codeDir))
+  app.use('/', express.static(options.codeDir));
 
   return app;
 }
