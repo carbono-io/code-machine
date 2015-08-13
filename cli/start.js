@@ -10,7 +10,7 @@ var codeMachine = require('../index');
 // Constants
 var DEFAULT = {
   port: 8000,
-  codeDir: false
+  codeDir: '/code'
 };
 
 // Use commander to parse arguments provided through the command line.
