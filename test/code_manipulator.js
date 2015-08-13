@@ -2,11 +2,11 @@ require('chai').should();
 var io     = require('socket.io-client');
 
 // retrieve environment variables
-var port = process.env.PORT || 9000;
+var port = process.env.PORT || 8000;
 
 var socketURL = 'http://localhost:' + port;
 
-describe('Socket server', function () {
+describe('Code Manipulator', function () {
   
   it('Should be capable of connecting', function (testDone) {
     var client = io.connect(socketURL);

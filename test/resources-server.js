@@ -6,170 +6,106 @@ var request = require('request');
 var DomFs   = require('dom-fs');
 
 // retrieve environment variables
-var port = process.env.PORT || 9000;
+var port = process.env.PORT || 8000;
 
 var serverUrl = 'http://localhost:' + port;
-var testCodeProjectDir = path.join(__dirname, 'resources/polymer-starter-kit')
+var testCodeProjectDir = path.join(__dirname, 'testServer')
+
+var cleanPath  = '/resources/clean';
+var markedPath = '/resources/marked';
 
 describe('Clean resources server', function () {
-  
-  it('Serves the clean files', function (testDone) {
 
-    request(serverUrl + '/resources/clean/app/index.html', function (err, res) {
+    it('Serves the clean files', function (testDone) {
 
-      // original content
-      var fileContents = fs.readFileSync(path.join(testCodeProjectDir, 'app/index.html'), {
-        encoding: 'utf8'
-      });
+        var reqPath = path.join(cleanPath, 'index.html');
+        request(serverUrl + reqPath, function (err, res) {
 
-      res.body.should.eql(fileContents);
+            // original content
+            var fileContents = fs.readFileSync(
+                path.join(testCodeProjectDir, 'index.html'),
+                {encoding: 'utf8'}
+            );
 
-      testDone();
-    })
-    .on('error', function (e) {
-      testDone(e);
+            res.body.should.eql(fileContents);
+
+            testDone();
+        })
+        .on('error', function (e) {
+            testDone(e);
+        });
+
     });
-
-  });
 });
 
 describe('Marked resources server', function () {
 
-  it('Serves .html files with x-path marcations', function (testDone) {
+    it('Serves .html files with x-path marcations', function (testDone) {
 
-    var domFs = new DomFs(testCodeProjectDir);
+        var domFs = new DomFs(testCodeProjectDir);
 
-    request(serverUrl + '/resources/marked/app/index.html', function (err, res) {
+        var reqPath = path.join(markedPath, 'index.html');
+        request(serverUrl + reqPath, function (err, res) {
 
-      // read the file with the domFs.
-      domFs.getFile('app/index.html')
-        .stringify(function (element) {
-          // Only mark tag elements
-          if (element.type === 'tag') {
-            element.attribs['x-path'] = element.getXPath();
-          }
-        })
-        .should.eql(res.body);
+            // read the file with domFs.
+            domFs.getFile('index.html')
+                .stringify(function (element) {
+                    // Only mark tag elements
+                    if (element.type === 'tag') {
+                        element.attribs['x-path'] = element.getXPath();
+                    }
+                })
+                .should.eql(res.body);
 
-      testDone();
-    }).on('error', function (e) {
-      testDone(e)
+            testDone();
+        }).on('error', function (e) {
+            testDone(e)
+        });
+
     });
 
-  });
+    it('Serves .js files without modification', function (testDone) {
 
-  it('Serves .js files without modification', function (testDone) {
+        var scriptPath = 'scripts/test.js';
+        var reqPath  = path.join(markedPath, scriptPath);
 
-    var scriptPath = 'app/scripts/app.js';
-    var scriptUrl  = serverUrl + '/resources/marked/' + scriptPath;
+        request(serverUrl + reqPath, function (err, res) {
 
-    request(scriptUrl, function (err, res) {
+            res.body.should.not.be.false;
 
-      res.body.should.not.be.false;
+            fs.readFileSync(path.join(testCodeProjectDir, scriptPath), {
+                encoding: 'utf8'
+            })
+            .should.eql(res.body);
 
-      fs.readFileSync(path.join(testCodeProjectDir, scriptPath), {
-        encoding: 'utf8'
-      })
-      .should.eql(res.body);
+            testDone();
 
-      testDone();
+        }).on('error', function (err) {
+            testDone(err);
+        });
 
-    }).on('error', function (err) {
-      testDone(err);
     });
 
-  });
+    it('Serves .css files without modification', function (testDone) {
 
-  it('Serves .js files from bower_components without modification', function (testDone) {
+        var stylesheetPath = 'style/test.css';
+        var reqPath = path.join(markedPath, stylesheetPath);
 
-    var scriptPath = 'app/bower_components/page/page.js';
-    var scriptUrl  = serverUrl + '/resources/marked/' + scriptPath;
+        request(serverUrl + reqPath, function (err, res) {
 
-    request(scriptUrl, function (err, res) {
+            res.body.should.not.be.false;
 
-      res.statusCode.should.eql(200);
-      res.body.should.not.be.false;
+            fs.readFileSync(path.join(testCodeProjectDir, stylesheetPath), {
+                encoding: 'utf8'
+            })
+            .should.eql(res.body);
 
-      fs.readFileSync(path.join(testCodeProjectDir, scriptPath), {
-        encoding: 'utf8'
-      })
-      .should.eql(res.body);
+            testDone();
 
-      testDone();
+        }).on('error', function (err) {
+            testDone(err);
+        });
 
-    }).on('error', function (err) {
-      testDone(err);
     });
-
-  });
-
-
-  it('Serves .css files without modification', function (testDone) {
-
-    var stylesheetPath = 'app/styles/main.css';
-    var stylesheetUrl  = serverUrl + '/resources/marked/' + stylesheetPath;
-
-    request(stylesheetUrl, function (err, res) {
-
-      res.body.should.not.be.false;
-
-      fs.readFileSync(path.join(testCodeProjectDir, stylesheetPath), {
-        encoding: 'utf8'
-      })
-      .should.eql(res.body);
-
-      testDone();
-
-    }).on('error', function (err) {
-      testDone(err);
-    });
-
-  });
-
-  it('Serves .css files from bower_components without modification', function (testDone) {
-
-    var stylesheetPath = 'app/bower_components/paper-drawer-panel/paper-drawer-panel.css';
-    var stylesheetUrl  = serverUrl + '/resources/marked/' + stylesheetPath;
-
-    request(stylesheetUrl, function (err, res) {
-
-      res.headers['content-type'].should.eql('text/css; charset=UTF-8');
-      res.body.should.not.be.false;
-
-      fs.readFileSync(path.join(testCodeProjectDir, stylesheetPath), {
-        encoding: 'utf8'
-      })
-      .should.eql(res.body);
-
-      testDone();
-
-    }).on('error', function (err) {
-      testDone(err);
-    });
-
-  });
-
-  it('Serves .png files without modification', function (testDone) {
-
-    var stylesheetPath = 'app/images/touch/chrome-touch-icon-192x192.png';
-    var stylesheetUrl  = serverUrl + '/resources/marked/' + stylesheetPath;
-
-    request(stylesheetUrl, function (err, res) {
-
-      res.body.should.not.be.false;
-
-      fs.readFileSync(path.join(testCodeProjectDir, stylesheetPath), {
-        encoding: 'utf8'
-      })
-      .should.eql(res.body);
-
-      testDone();
-
-    }).on('error', function (err) {
-      testDone(err);
-    });
-
-  });
-
 
 });
