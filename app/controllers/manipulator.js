@@ -32,7 +32,7 @@ module.exports = function (app) {
                     socket.emit('error', {at: 'editAtt'});
                 } else {
                     try{
-                        var ok = cm.insertElementAtXPath(
+                        cm.insertElementAtXPath(
                             data.file,
                             data.xpath,
                             data.element
@@ -42,9 +42,7 @@ module.exports = function (app) {
                         socket.emit('error', {at: 'editAtt'});
                     }
                 }
-                if(ok){
-                    socket.emit('edited', {result: 'ok'});
-                }
+                socket.emit('edited', {result: 'ok'});
             }
         );
     };

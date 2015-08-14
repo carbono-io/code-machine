@@ -1,12 +1,12 @@
 var fs   = require('fs');
 var path = require('path');
+var config = require('config');
 
 require('chai').should();
 var request = require('request');
 var DomFs   = require('dom-fs');
 
-// retrieve environment variables
-var port = process.env.PORT || 8000;
+var port = config.get('port');
 
 var serverUrl = 'http://localhost:' + port;
 var testCodeProjectDir = path.join(__dirname, 'testServer')
