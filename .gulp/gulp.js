@@ -2,30 +2,34 @@
 // Native dependencies
 
 // External dependencies
-var exec     = require('child_process').exec;
+var exec = require('child_process').exec;
 var istanbul = require('gulp-istanbul');
-var jscs     = require('gulp-jscs');
-var jshint   = require('gulp-jshint');
-var mocha    = require('gulp-mocha');
-var notify   = require('gulp-notify');
+var jscs = require('gulp-jscs');
+var jshint = require('gulp-jshint');
+var mocha = require('gulp-mocha');
+var notify = require('gulp-notify');
 
 module.exports = function (gulp, jsPath) {
     gulp.task('checkstyle', function () {
         gulp.src(jsPath)
-            .pipe(jscs('.gulp/.jscsrc'))
+            .pipe(jscs('.jscsrc'))
             .on('error', notify.onError(
-                {title: 'JSCS Error :/', 
-                message: 'Error: <%= error.message %>',}));
+                {
+                    title: 'JSCS Error :/',
+                    message: 'Error: <%= error.message %>',
+                }));
     });
 
     gulp.task('checkcode', function () {
         gulp.src(jsPath)
-            .pipe(jshint('.gulp/.jshintrc'))
+            .pipe(jshint('.jshintrc'))
             .pipe(jshint.reporter('jshint-stylish'))
             .pipe(jshint.reporter('fail'))
             .on('error', notify.onError(
-                {title: 'JSHint Error :/',
-                message: 'Error: <%= error.message %>',}));
+                {
+                    title: 'JSHint Error :/',
+                    message: 'Error: <%= error.message %>',
+                }));
     });
 
     gulp.task('test', function (cb) {
@@ -38,30 +42,32 @@ module.exports = function (gulp, jsPath) {
                 gulp.src(['./test/**/*.js'])
                     .pipe(mocha({reporter: 'nyan', growl: 'false'}))
                     .pipe(istanbul.writeReports(
-                        {dir: './unit-test-coverage',
-                        reporters: [ 'text-summary', 'lcov'],
-                        reportOpts: { dir: './unit-test-coverage'},}))
-          // Enforce a coverage of at least 90%
+                        {
+                            dir: './unit-test-coverage',
+                            reporters: ['text-summary', 'lcov'],
+                            reportOpts: {dir: './unit-test-coverage'},
+                        }))
+                    // Enforce a coverage of at least 90%
                     .pipe(
-                        istanbul.enforceThresholds(
-                            { thresholds: { global: 90 } }))
-                    .on('error', 
-                        function (err) {
-                            console.log(err.message);
-                        }
-                    )
+                    istanbul.enforceThresholds(
+                        {thresholds: {global: 90}}))
+                    .on('error',
+                    function (err) {
+                        console.log(err.message);
+                    }
+                )
                     .on('end', cb);
             });
     });
 
     gulp.task('gendoc', function (cb) {
-          exec('./node_modules/jsdoc/jsdoc.js -c .gulp/.jsdoc .',
-              function (err, stdout, stderr) {
-                  console.log(stdout);
-                  console.log(stderr);
-                  cb(err);
-              }
-          );
+        exec('./node_modules/jsdoc/jsdoc.js -c .jsdoc .',
+            function (err, stdout, stderr) {
+                console.log(stdout);
+                console.log(stderr);
+                cb(err);
+            }
+        );
     });
 
     gulp.task('serve', function (cb) {
@@ -73,10 +79,10 @@ module.exports = function (gulp, jsPath) {
     });
 
     gulp.task('watch', function () {
-        gulp.watch(jsPath, ['checkstyle', 'checkcode'] );
+        gulp.watch(jsPath, ['checkstyle', 'checkcode']);
     });
 
-    gulp.task('checkall', ['checkstyle', 'checkcode', 'test',]);
+    gulp.task('checkall', ['checkstyle', 'checkcode', 'test', ]);
 
     gulp.task('default', function () {
         console.log(
@@ -88,6 +94,6 @@ module.exports = function (gulp, jsPath) {
             'gulp serve       - Run node index.js\n' +
             'gulp test        - Execute unit tests and coverage\n' +
             'gulp watch       - Watch file changes and perform  ' +
-              'checkstyle and checkcode');
+            'checkstyle and checkcode');
     });
 };

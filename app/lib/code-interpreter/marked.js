@@ -2,38 +2,37 @@
 
 // External dependencies
 var express = require('express');
-var DomFs   = require('dom-fs');
+var DomFs    = require('dom-fs');
 
 /**
  * Creates an express app for serving marked html resources
  */
 function createMarkedResourcesServer(options) {
 
-  var domFs = new DomFs(options.codeDir);
+    var domFs = new DomFs(options.codeDir);
 
-  var app = express();
+    var app = express();
 
-  // First intercept get requests for .html files
-  app.get('**/*.html', function (req, res) {
+    // First intercept get requests for .html files
+    app.get('**/*.html', function (req, res) {
 
-    var file = domFs.getFile(req.path);
+        var file = domFs.getFile(req.path);
 
-    var markedContent = file.stringify({
-      elementCallback: function (element) {
-        // Only mark tag elements
-        if (element.type === 'tag') {
-          element.attribs['x-path'] = element.getXPath();
-        }
-      }
+        var markedContent = file.stringify({
+            elementCallback: function (element) {
+                if (element.type === 'tag') {
+                    element.attribs['x-path'] = element.getXPath();
+                }
+            },
+        });
+
+        res.send(markedContent);
     });
 
-    res.send(markedContent);
-  });
+    // Then serve static files for all other extensions
+    app.use('/', express.static(options.codeDir));
 
-  // Then serve static files for all other extensions
-  app.use('/', express.static(options.codeDir));
-
-  return app;
+    return app;
 }
 
 // Exports

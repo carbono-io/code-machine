@@ -8,14 +8,14 @@ module.exports = function (codeDir) {
     /**
      * Performs an attribute edition.
      */
-    this.editAttribute = function (domFs, options) {
+    this.editAttribute = function () {
 
     };
 
     /**
      * Inserts a new html element (passed as a string) at a specific location
      * within a file's DOM.
-     * @TODO: Alter DomFs behavior to keep changes in memory.
+     * @todo Alter DomFs behavior to keep changes in memory.
      *
      * @param domFs - DomFs instance.
      * @param options - object containing data for operation, must contain the
@@ -40,4 +40,4 @@ module.exports = function (codeDir) {
         // ResourceServer serves the modified file.
         domFile.write();
     };
-}
+};

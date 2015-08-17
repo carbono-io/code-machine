@@ -1,3 +1,4 @@
+'use strict';
 var fs   = require('fs');
 var path = require('path');
 var config = require('config');
@@ -9,10 +10,12 @@ var DomFs   = require('dom-fs');
 var port = config.get('port');
 
 var serverUrl = 'http://localhost:' + port;
-var testCodeProjectDir = path.join(__dirname, 'testServer')
+var projectDir = path.join(__dirname, 'testServer');
 
 var cleanPath  = '/resources/clean';
 var markedPath = '/resources/marked';
+
+var utf8 = {encoding: 'utf-8'};
 
 describe('Clean resources server', function () {
 
@@ -21,10 +24,9 @@ describe('Clean resources server', function () {
         var reqPath = path.join(cleanPath, 'index.html');
         request(serverUrl + reqPath, function (err, res) {
 
-            // original content
             var fileContents = fs.readFileSync(
-                path.join(testCodeProjectDir, 'index.html'),
-                {encoding: 'utf8'}
+                path.join(projectDir, 'index.html'),
+                utf8
             );
 
             res.body.should.eql(fileContents);
@@ -42,15 +44,13 @@ describe('Marked resources server', function () {
 
     it('Serves .html files with x-path marcations', function (testDone) {
 
-        var domFs = new DomFs(testCodeProjectDir);
+        var domFs = new DomFs(projectDir);
 
         var reqPath = path.join(markedPath, 'index.html');
         request(serverUrl + reqPath, function (err, res) {
 
-            // read the file with domFs.
             domFs.getFile('index.html')
                 .stringify(function (element) {
-                    // Only mark tag elements
                     if (element.type === 'tag') {
                         element.attribs['x-path'] = element.getXPath();
                     }
@@ -59,7 +59,7 @@ describe('Marked resources server', function () {
 
             testDone();
         }).on('error', function (e) {
-            testDone(e)
+            testDone(e);
         });
 
     });
@@ -73,10 +73,8 @@ describe('Marked resources server', function () {
 
             res.body.should.not.be.false;
 
-            fs.readFileSync(path.join(testCodeProjectDir, scriptPath), {
-                encoding: 'utf8'
-            })
-            .should.eql(res.body);
+            fs.readFileSync(path.join(projectDir, scriptPath), utf8)
+                .should.eql(res.body);
 
             testDone();
 
@@ -95,10 +93,8 @@ describe('Marked resources server', function () {
 
             res.body.should.not.be.false;
 
-            fs.readFileSync(path.join(testCodeProjectDir, stylesheetPath), {
-                encoding: 'utf8'
-            })
-            .should.eql(res.body);
+            fs.readFileSync(path.join(projectDir, stylesheetPath), utf8)
+                .should.eql(res.body);
 
             testDone();
 

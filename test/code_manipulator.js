@@ -1,3 +1,4 @@
+'use strict';
 require('chai').should();
 var io = require('socket.io-client');
 var fs = require('fs');
@@ -10,25 +11,25 @@ var port = config.get('port');
 
 var manipulatorURL = 'http://localhost:' + port;
 
-var testCodeProjectDir = path.join(__dirname, 'testServer')
-var indexFile = 'index.html'
+var projectDir = path.join(__dirname, 'testServer');
+var indexFile = 'index.html';
 
-var indexPath = path.join(testCodeProjectDir, indexFile);
+var indexPath = path.join(projectDir, indexFile);
 var backupPath = path.join(__dirname, indexFile + '.bak');
 
 var conn;
 
 describe('Code Manipulator', function () {
 
-    beforeEach( function(done) {
+    beforeEach(function (done) {
         fs.createReadStream(indexPath).pipe(fs.createWriteStream(backupPath));
 
         conn = io.connect(manipulatorURL);
 
-        conn.on('connect', done)
+        conn.on('connect', done);
     });
 
-    afterEach( function(done) {
+    afterEach(function (done) {
         fs.createReadStream(backupPath).pipe(fs.createWriteStream(indexPath));
         fs.unlink(backupPath);
 
@@ -44,13 +45,13 @@ describe('Code Manipulator', function () {
         var insert = {
             file: 'index.html',
             xpath: '/html/body',
-            element: '<p>' + insertedText + '</p>'
+            element: '<p>' + insertedText + '</p>',
         };
 
         conn.emit('command:insertElementAtXPath', insert);
 
         conn.on('edited', function () {
-            var domfs = new DomFs(testCodeProjectDir);
+            var domfs = new DomFs(projectDir);
             var domFile = domfs.getFile(insert.file);
             var foundElement = domFile.getElementByXPath(insert.xpath + '/p');
             var foundText = foundElement.children[0].data;

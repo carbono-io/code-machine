@@ -3,7 +3,6 @@ var config  = require('config');
 var consign = require('consign');
 var http    = require('http');
 var express = require('express');
-var _       = require('lodash');
 var ws      = require('socket.io');
 
 var app        = express();
@@ -12,7 +11,7 @@ app.ws         = ws(app.httpServer);
 
 app.options = {
     port: config.get('port'),
-    codeDir: config.get('codeDir')
+    codeDir: config.get('codeDir'),
 };
 
 consign({cwd: 'app'})

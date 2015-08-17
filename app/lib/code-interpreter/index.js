@@ -11,21 +11,20 @@ var createCleanResourcesServer  = require('./clean');
  * Builds up the logic for serving the resource server
  */
 function createResourcesServer(options) {
-  var app = express();
+    var app = express();
 
-  // Mount the sub-servers to their respective paths
-  app.use('/marked', createMarkedResourcesServer(options));
-  app.use('/clean', createCleanResourcesServer(options));
+    function logErrors(err, req, res, next) {
+        console.error(err.stack);
+        next(err);
+    }
 
-  app.use('/clean', logErrors);
+    // Mount the sub-servers to their respective paths
+    app.use('/marked', createMarkedResourcesServer(options));
+    app.use('/clean', createCleanResourcesServer(options));
 
-  function logErrors(err, req, res, next) {
-    console.error(err.stack);
-    next(err);
-  }
-
-  // Return the app
-  return app;
+    app.use('/clean', logErrors);
+    // Return the app
+    return app;
 }
 
 module.exports = createResourcesServer;

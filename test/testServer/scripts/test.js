@@ -1,8 +1,10 @@
-/*
- * test.js
+/**
+ * Script for test server.
  */
 
 var two = 2;
 
-var twoSquared = Math.pow(2,2);
+var twoSquared = Math.pow(two,2);
+
+console.log(twoSquared);
 
