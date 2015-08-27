@@ -4,4 +4,4 @@ RUN mkdir /code
 
 EXPOSE 8000
 
-ENTRYPOINT ["node", "/code-machine/cli/start.js"]
+CMD ["/bin/sh", "-c", "cd /code-machine && node ."]
