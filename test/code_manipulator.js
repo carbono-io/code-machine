@@ -21,21 +21,27 @@ var conn;
 
 describe('Code Manipulator', function () {
 
+    before(function (done) {
+        conn = io.connect(manipulatorURL);
+        conn.on('connect', done);
+    });
+
+    after(function (done) {
+        if (conn.connected) {
+            conn.disconnect();
+        }
+
+        done();
+    });
+
     beforeEach(function (done) {
         fs.createReadStream(indexPath).pipe(fs.createWriteStream(backupPath));
-
-        conn = io.connect(manipulatorURL);
-
-        conn.on('connect', done);
+        done();
     });
 
     afterEach(function (done) {
         fs.createReadStream(backupPath).pipe(fs.createWriteStream(indexPath));
         fs.unlink(backupPath);
-
-        if (conn.connected) {
-            conn.disconnect();
-        }
         done();
     });
 
@@ -58,6 +64,35 @@ describe('Code Manipulator', function () {
 
             foundText.should.be.equal(insertedText);
 
+            testDone();
+        });
+
+        conn.on('error', function (err) {
+            testDone(err);
+        });
+
+    });
+
+    it('Should be able to insert a new bower component', function (testDone) {
+        var insert = {
+            path: {
+                file: 'index.html',
+                xpath: '/html/body',
+            },
+            html: '<iron-form></iron-form>',
+            components: [
+                {
+                    name: 'iron-form',
+                    repository: 'PolymerElements/iron-form',
+                },
+            ],
+        };
+
+        conn.emit('command:insertElement', insert);
+
+        conn.on('inserted', function () {
+            /* @todo test if all the required code was properly inserted.
+             */
             testDone();
         });
 
