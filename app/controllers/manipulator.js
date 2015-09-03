@@ -1,62 +1,70 @@
 'use strict';
 var CM = require('../lib/code-manipulator');
+var Reply = require('../lib/socket-reply');
 
 module.exports = function (app) {
 
     var cm = new CM(app.options.codeDir);
 
     this.editAttribute = function (socket) {
-        socket.on('command:editAttribute', function (data) {
-            if (!data) {
-                socket.emit('error', {at: 'editAtt'});
+        var command = 'command:editAttribute';
+        socket.on(command, function (message) {
+            message = JSON.parse(message);
+            var reply = new Reply(socket, command, message.id);
+            if (!message.items) {
+                reply.error(400, 'No data received');
             } else {
                 try {
+                    var data = message.items[0];
                     cm.editAttribute(data);
+                    reply.success();
                 } catch (e) {
-                    socket.emit('error', {at: 'editAtt'});
+                    reply.error(500, 'Insertion error', e);
                 }
             }
-            socket.emit('edited', {result: 'ok'});
         });
     };
 
     this.insertElementAtXPath = function (socket) {
-        socket.on('command:insertElementAtXPath', function (data) {
-            if (!data) {
-                socket.emit('error', {at: 'editAtt'});
+        var command = 'command:insertElementAtXPath';
+        socket.on(command, function (message) {
+            message = JSON.parse(message);
+            var reply = new Reply(socket, command, message.id);
+
+            if (!message.data.items) {
+                reply.error(400, 'No data received');
             } else {
                 try {
+                    var data = message.data.items[0];
                     cm.insertElementAtXPath(
                         data.file,
                         data.xpath,
-                        data.element
+                        data.element,
+                        reply
                     );
                 } catch (e) {
-                    socket.emit('error', {at: 'editAtt'});
+                    console.log(e);
+                    reply.error(500, 'Insertion error', e);
                 }
             }
-            socket.emit('edited', {result: 'ok'});
         });
     };
 
     this.insertElement = function (socket) {
-        socket.on('command:insertElement', function (data) {
-            var respond = function (error) {
-                if (error) {
-                    socket.emit('error', error);
-                } else {
-                    socket.emit('inserted', {});
-                }
-            };
+        var command = 'command:insertElement';
+        socket.on(command, function (message) {
+            message = JSON.parse(message);
+            var reply = new Reply(socket, command, message.id);
 
-            if (!data) {
-                respond(new Error('no data received'));
+            if (!message.data.items) {
+                reply.error(400, 'No data received');
             } else {
+                var data = message.data.items[0];
                 cm.insertElement(
                         data.path,
                         data.html,
                         data.components,
-                        respond
+                        reply
                 );
             }
         });

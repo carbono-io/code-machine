@@ -4,7 +4,6 @@ var consign = require('consign');
 var http    = require('http');
 var express = require('express');
 var ws      = require('socket.io');
-var fs      = require('fs');
 var path    = require('path');
 
 var app        = express();
@@ -13,15 +12,8 @@ app.ws         = ws(app.httpServer);
 
 app.options = {
     port: config.get('port'),
-    codeDir: config.get('codeDir'),
+    codeDir: path.resolve(config.get('codeDir')),
 };
-
-/**
- * @todo find a better way to handle the bower install dir
- */
-var bowerDir = path.join(config.get('codeDir'), config.get('bowerDir'));
-var bowerrc = '{"directory": "' + bowerDir + '"}';
-fs.writeFileSync('.bowerrc', bowerrc);
 
 consign({cwd: 'app'})
     .include('controllers')

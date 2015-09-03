@@ -4,18 +4,18 @@ var io = require('socket.io-client');
 var fs = require('fs');
 var path = require('path');
 var config = require('config');
-
-var DomFs   = require('dom-fs');
+var rimraf = require('rimraf');
+var DomFs = require('dom-fs');
+var Message = require('carbono-json-messages');
 
 var port = config.get('port');
-
 var manipulatorURL = 'http://localhost:' + port;
 
-var projectDir = path.join(__dirname, 'testServer');
+var projectDir = path.resolve(config.get('codeDir'));
 var indexFile = 'index.html';
-
 var indexPath = path.join(projectDir, indexFile);
 var backupPath = path.join(__dirname, indexFile + '.bak');
+var bowerDir = path.join(projectDir, 'bower_components');
 
 var conn;
 
@@ -31,21 +31,25 @@ describe('Code Manipulator', function () {
             conn.disconnect();
         }
 
-        done();
+        rimraf(bowerDir, done);
     });
 
     beforeEach(function (done) {
-        fs.createReadStream(indexPath).pipe(fs.createWriteStream(backupPath));
-        done();
+        var index = fs.createReadStream(indexPath);
+        index.pipe(fs.createWriteStream(backupPath));
+        index.on('end', done);
     });
 
     afterEach(function (done) {
-        fs.createReadStream(backupPath).pipe(fs.createWriteStream(indexPath));
-        fs.unlink(backupPath);
-        done();
+        var backup = fs.createReadStream(backupPath);
+        backup.pipe(fs.createWriteStream(indexPath));
+        backup.on('end', function () {
+            fs.unlink(backupPath);
+            done();
+        });
     });
 
-    it('Should be able to insert new HTML elements', function (testDone) {
+    it('Should be able to insert new HTML elements', function (done) {
         var insertedText = 'Element to insert';
 
         var insert = {
@@ -54,9 +58,12 @@ describe('Code Manipulator', function () {
             element: '<p>' + insertedText + '</p>',
         };
 
-        conn.emit('command:insertElementAtXPath', insert);
+        var message = new Message({apiVersion: '1.0'});
+        message.setData({items: [insert]});
 
-        conn.on('edited', function () {
+        conn.emit('command:insertElementAtXPath', message.toJSON());
+
+        conn.on('command:insertElementAtXPath/success', function () {
             var domfs = new DomFs(projectDir);
             var domFile = domfs.getFile(insert.file);
             var foundElement = domFile.getElementByXPath(insert.xpath + '/p');
@@ -64,16 +71,15 @@ describe('Code Manipulator', function () {
 
             foundText.should.be.equal(insertedText);
 
-            testDone();
+            done();
         });
 
-        conn.on('error', function (err) {
-            testDone(err);
+        conn.on('command:insertElementAtXPath/error', function (message) {
+            done(message);
         });
-
     });
 
-    it('Should be able to insert a new bower component', function (testDone) {
+    it('Should be able to insert a new bower component', function (done) {
         var insert = {
             path: {
                 file: 'index.html',
@@ -88,16 +94,35 @@ describe('Code Manipulator', function () {
             ],
         };
 
-        conn.emit('command:insertElement', insert);
+        var message = new Message({apiVersion: '1.0'});
+        message.setData({items: [insert]});
 
-        conn.on('inserted', function () {
-            /* @todo test if all the required code was properly inserted.
-             */
-            testDone();
+        conn.emit('command:insertElement', message.toJSON());
+
+        conn.on('command:insertElement/success', function () {
+            var domFs = new DomFs(projectDir);
+            var domFile = domFs.getFile(insert.path.file);
+            var formXpath = insert.path.xpath + '/iron-form';
+            var ironForm = domFile.getElementByXPath(formXpath);
+            ironForm.should.not.be.null;
+
+            var head = domFile.getElementByXPath('/html/head');
+            var found = head.children.reduce(function (found, item) {
+                if (item.type === 'tag' && item.name === 'link' &&
+                    item.attribs.href.indexOf('iron-form') !== -1) {
+                    found = item;
+                }
+                return found;
+            }, null);
+            found.should.not.be.null;
+
+            var importPath = path.join(projectDir, found.attribs.href);
+            fs.statSync(importPath).isFile().should.be.true;
+            done();
         });
 
-        conn.on('error', function (err) {
-            testDone(err);
+        conn.on('command:insertElement/error', function (err) {
+            done(err);
         });
 
     });
