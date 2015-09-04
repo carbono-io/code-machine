@@ -20,6 +20,7 @@ var bowerDir = path.join(projectDir, 'bower_components');
 var conn;
 
 describe('Code Manipulator', function () {
+    this.timeout(30000);
 
     before(function (done) {
         conn = io.connect(manipulatorURL);
