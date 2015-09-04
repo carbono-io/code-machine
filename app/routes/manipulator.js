@@ -4,12 +4,11 @@ module.exports = function (app) {
     var manipulator = app.controllers.manipulator;
 
     app.ws
-        .on('connection',
-            function (socket) {
-                manipulator.editAttribute(socket);
-                manipulator.insertElementAtXPath(socket);
-            }
-        );
+        .on('connection', function (socket) {
+            manipulator.editAttribute(socket);
+            manipulator.insertElementAtXPath(socket);
+            manipulator.insertElement(socket);
+        });
 
     return this;
 };

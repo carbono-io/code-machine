@@ -4,6 +4,7 @@ var consign = require('consign');
 var http    = require('http');
 var express = require('express');
 var ws      = require('socket.io');
+var path    = require('path');
 
 var app        = express();
 app.httpServer = http.createServer(app);
@@ -11,7 +12,7 @@ app.ws         = ws(app.httpServer);
 
 app.options = {
     port: config.get('port'),
-    codeDir: config.get('codeDir'),
+    codeDir: path.resolve(config.get('codeDir')),
 };
 
 consign({cwd: 'app'})
