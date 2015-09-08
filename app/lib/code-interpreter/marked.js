@@ -2,14 +2,12 @@
 
 // External dependencies
 var express = require('express');
-var DomFs    = require('dom-fs');
+var domFs = require('../dom-wrapper');
 
 /**
  * Creates an express app for serving marked html resources
  */
 function createMarkedResourcesServer(options) {
-
-    var domFs = new DomFs(options.codeDir);
 
     var app = express();
 

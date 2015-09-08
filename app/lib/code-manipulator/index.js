@@ -1,5 +1,5 @@
 'use strict';
-var DomFs = require('dom-fs');
+var domFs = require('../dom-wrapper');
 var bower = require('bower');
 var Q = require('q');
 var _ = require('lodash');
@@ -7,7 +7,6 @@ var _ = require('lodash');
 module.exports = function (codeDir) {
 
     bower.config.cwd = codeDir;
-    var _domFs = new DomFs(codeDir);
 
     /**
      * Performs an attribute edition.
@@ -64,7 +63,7 @@ module.exports = function (codeDir) {
      * @returns {Promise}
      */
     var insertHtmlAtXpath = function (file, xpath, element) {
-        var domFile = _domFs.getFile(file);
+        var domFile = domFs.getFile(file);
 
         return Q.Promise(function (resolve, reject) {
             if (!file) {
@@ -117,7 +116,7 @@ module.exports = function (codeDir) {
      * @returns {Promise}
      */
     var addComponentImport = function (component) {
-        var domFile = _domFs.getFile('index.html');
+        var domFile = domFs.getFile('index.html');
 
         var insertImport = function (importPath) {
             var head = domFile.getElementByXPath('/html/head');

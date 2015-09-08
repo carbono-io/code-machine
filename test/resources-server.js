@@ -49,14 +49,13 @@ describe('Marked resources server', function () {
         var reqPath = path.join(markedPath, 'index.html');
         request(serverUrl + reqPath, function (err, res) {
 
-            domFs.getFile('index.html')
+            domFs.getFile('index.html', true)
                 .stringify(function (element) {
                     if (element.type === 'tag') {
                         element.attribs['x-path'] = element.getXPath();
                     }
                 })
                 .should.eql(res.body);
-
             testDone();
         }).on('error', function (e) {
             testDone(e);

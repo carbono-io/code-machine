@@ -65,8 +65,8 @@ describe('Code Manipulator', function () {
         conn.emit('command:insertElementAtXPath', message.toJSON());
 
         conn.on('command:insertElementAtXPath/success', function () {
-            var domfs = new DomFs(projectDir);
-            var domFile = domfs.getFile(insert.file);
+            var domFs = new DomFs(projectDir);
+            var domFile = domFs.getFile(insert.file);
             var foundElement = domFile.getElementByXPath(insert.xpath + '/p');
             var foundText = foundElement.children[0].data;
 
