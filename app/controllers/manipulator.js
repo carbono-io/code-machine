@@ -1,6 +1,7 @@
 'use strict';
 var CM = require('../lib/code-manipulator');
 var Reply = require('../lib/socket-reply');
+var Message = require('carbono-json-messages');
 
 module.exports = function (app) {
 
@@ -68,6 +69,23 @@ module.exports = function (app) {
                 );
             }
         });
+    };
+
+    this.broadcastUpdates = function (socket) {
+        var emitUpdate = function (data) {
+            // @todo modularize this inside the socket helper lib
+            var message = new Message({apiVersion: '1.0'});
+            message.setData({
+                items: [
+                    data,
+                ],
+            });
+
+            socket.emit('control:contentUpdate', message.toJSON());
+        };
+
+        // @todo identify listeners so they can be removed on disconnect.
+        cm.registerUpdateListener(emitUpdate);
     };
 
     return this;

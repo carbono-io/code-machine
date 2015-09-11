@@ -8,6 +8,7 @@ module.exports = function (app) {
             manipulator.editAttribute(socket);
             manipulator.insertElementAtXPath(socket);
             manipulator.insertElement(socket);
+            manipulator.broadcastUpdates(socket);
         });
 
     return this;

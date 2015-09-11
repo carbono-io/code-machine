@@ -64,7 +64,7 @@ describe('Code Manipulator', function () {
 
         conn.emit('command:insertElementAtXPath', message.toJSON());
 
-        conn.on('command:insertElementAtXPath/success', function () {
+        conn.once('command:insertElementAtXPath/success', function () {
             var domFs = new DomFs(projectDir);
             var domFile = domFs.getFile(insert.file);
             var foundElement = domFile.getElementByXPath(insert.xpath + '/p');
@@ -75,7 +75,7 @@ describe('Code Manipulator', function () {
             done();
         });
 
-        conn.on('command:insertElementAtXPath/error', function (message) {
+        conn.once('command:insertElementAtXPath/error', function (message) {
             done(message);
         });
     });
@@ -100,7 +100,7 @@ describe('Code Manipulator', function () {
 
         conn.emit('command:insertElement', message.toJSON());
 
-        conn.on('command:insertElement/success', function () {
+        conn.once('command:insertElement/success', function () {
             var domFs = new DomFs(projectDir);
             var domFile = domFs.getFile(insert.path.file);
             var formXpath = insert.path.xpath + '/iron-form';
@@ -122,10 +122,36 @@ describe('Code Manipulator', function () {
             done();
         });
 
-        conn.on('command:insertElement/error', function (err) {
+        conn.once('command:insertElement/error', function (err) {
             done(err);
         });
 
     });
 
+    it('Should be able to notify file updates', function (done) {
+        var insertedText = 'Element to insert';
+
+        var insert = {
+            file: 'index.html',
+            xpath: '/html/body',
+            element: '<p>' + insertedText + '</p>',
+        };
+
+        var message = new Message({apiVersion: '1.0'});
+        message.setData({items: [insert]});
+
+        conn.emit('command:insertElementAtXPath', message.toJSON());
+
+        conn.once('control:contentUpdate', function (message) {
+            message = JSON.parse(message);
+            var data = message.data.items[0];
+            data.file.should.eql(insert.file);
+            data.xpath.should.eql(insert.xpath);
+            done();
+        });
+
+        conn.once('command:insertElementAtXPath/error', function (message) {
+            done(message);
+        });
+    });
 });

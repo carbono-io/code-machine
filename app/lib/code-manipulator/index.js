@@ -16,6 +16,13 @@ module.exports = function (codeDir) {
     };
 
     /**
+     *
+     */
+    this.registerUpdateListener = function (listener) {
+        domFs.on('update', listener);
+    };
+
+    /**
      * Inserts html code at a location specified by path. Success or
      * failure are reported through reply.success() and reply.failure().
      *
