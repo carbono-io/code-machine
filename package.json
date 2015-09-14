@@ -31,6 +31,7 @@
   "dependencies": {
     "async": "^1.4.2",
     "bower": "^1.5.2",
+    "carbo-inspector": "git+ssh://git@github.com/carbono-io/carbo-inspector.git",
     "carbono-json-messages": "git+ssh://git@bitbucket.org/carbonoio/carbono-json-messages.git",
     "commander": "^2.8.1",
     "config": "^1.15.0",

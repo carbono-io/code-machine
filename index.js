@@ -13,6 +13,9 @@ app.ws         = ws(app.httpServer);
 app.options = {
     port: config.get('port'),
     codeDir: path.resolve(config.get('codeDir')),
+    carboInspectorPath: path.resolve(
+        'node_modules/carbo-inspector/carbo-inspector.injector.html'
+    ),
 };
 
 consign({cwd: 'app'})

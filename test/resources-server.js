@@ -5,7 +5,6 @@ var config = require('config');
 
 require('chai').should();
 var request = require('request');
-var DomFs   = require('dom-fs');
 
 var port = config.get('port');
 
@@ -19,7 +18,7 @@ var utf8 = {encoding: 'utf-8'};
 
 describe('Clean resources server', function () {
 
-    it('Serves the clean files', function (testDone) {
+    it('Serves the clean files', function (done) {
 
         var reqPath = path.join(cleanPath, 'index.html');
         request(serverUrl + reqPath, function (err, res) {
@@ -31,10 +30,10 @@ describe('Clean resources server', function () {
 
             res.body.should.eql(fileContents);
 
-            testDone();
+            done();
         })
         .on('error', function (e) {
-            testDone(e);
+            done(e);
         });
 
     });
@@ -42,28 +41,21 @@ describe('Clean resources server', function () {
 
 describe('Marked resources server', function () {
 
-    it('Serves .html files with x-path marcations', function (testDone) {
-
-        var domFs = new DomFs(projectDir);
+    it('Serves .html files with x-path marcations', function (done) {
 
         var reqPath = path.join(markedPath, 'index.html');
         request(serverUrl + reqPath, function (err, res) {
 
-            domFs.getFile('index.html', true)
-                .stringify(function (element) {
-                    if (element.type === 'tag') {
-                        element.attribs['x-path'] = element.getXPath();
-                    }
-                })
-                .should.eql(res.body);
-            testDone();
+            res.should.not.be.empty;
+
+            done();
         }).on('error', function (e) {
-            testDone(e);
+            done(e);
         });
 
     });
 
-    it('Serves .js files without modification', function (testDone) {
+    it('Serves .js files without modification', function (done) {
 
         var scriptPath = 'scripts/test.js';
         var reqPath  = path.join(markedPath, scriptPath);
@@ -75,15 +67,15 @@ describe('Marked resources server', function () {
             fs.readFileSync(path.join(projectDir, scriptPath), utf8)
                 .should.eql(res.body);
 
-            testDone();
+            done();
 
         }).on('error', function (err) {
-            testDone(err);
+            done(err);
         });
 
     });
 
-    it('Serves .css files without modification', function (testDone) {
+    it('Serves .css files without modification', function (done) {
 
         var stylesheetPath = 'style/test.css';
         var reqPath = path.join(markedPath, stylesheetPath);
@@ -95,12 +87,24 @@ describe('Marked resources server', function () {
             fs.readFileSync(path.join(projectDir, stylesheetPath), utf8)
                 .should.eql(res.body);
 
-            testDone();
+            done();
 
         }).on('error', function (err) {
-            testDone(err);
+            done(err);
         });
 
+    });
+
+    it('Serves the injected carbo-inspector html', function (done) {
+
+        var reqPath = '/assets/injected/carbo-inspector.html';
+
+        request(serverUrl + reqPath, function (err, res) {
+            res.body.should.not.be.empty;
+            done();
+        }).on('error', function (err) {
+            done(err);
+        });
     });
 
 });
