@@ -1,4 +1,5 @@
 {
     "port": 8000,
-    "codeDir": "test/testServer/"
+    "projectDir": "./test/testServer/",
+    "sourceDir": "src/"
 }

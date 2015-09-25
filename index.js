@@ -10,9 +10,16 @@ var app        = express();
 app.httpServer = http.createServer(app);
 app.ws         = ws(app.httpServer);
 
+var projectDir = path.resolve(config.get('projectDir'));
+var sourceDir = config.get('sourceDir');
+var codeDir = path.join(projectDir, sourceDir);
+
 app.options = {
     port: config.get('port'),
-    codeDir: path.resolve(config.get('codeDir')),
+    projectDir: projectDir,
+    sourceDir: sourceDir,
+    codeDir: codeDir,
+    // @todo get the path to carbo-inspector in a better way.
     carboInspectorPath: path.resolve(
         'node_modules/carbo-inspector/carbo-inspector.injector.html'
     ),
