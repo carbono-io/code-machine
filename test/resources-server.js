@@ -100,7 +100,7 @@ describe('Marked resources server', function () {
         var reqPath = '/assets/injected/carbo-inspector.html';
 
         request(serverUrl + markedPath + reqPath, function (err, res) {
-            res.body.should.not.be.empty;
+            res.statusCode.should.eql(200);
             done();
         }).on('error', function (err) {
             done(err);
