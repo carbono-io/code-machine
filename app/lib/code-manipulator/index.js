@@ -39,6 +39,10 @@ module.exports = function (options) {
         domFs.on('update', listener);
     };
 
+    this.removeUpdateListener = function (listener) {
+        domFs.removeListener('update', listener);
+    };
+
     /**
      * Inserts html code at a location specified by path. Success or
      * failure are reported through reply.success() and reply.failure().

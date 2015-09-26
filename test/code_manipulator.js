@@ -24,7 +24,7 @@ var bowerDir = path.join(codeDir, 'bower_components');
 var conn;
 
 describe('Code Manipulator', function () {
-    this.timeout(3000);
+    this.timeout(30000);
 
     before(function (done) {
         conn = io.connect(manipulatorURL);
@@ -146,11 +146,14 @@ describe('Code Manipulator', function () {
 
         conn.emit('command:insertElementAtXPath', message.toJSON());
 
+        var re = /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/;
+
         conn.once('control:contentUpdate', function (message) {
             message = JSON.parse(message);
             var data = message.data.items[0];
             data.file.should.eql(insert.file);
-            data.xpath.should.eql(insert.xpath);
+            data.elementUuid.should.match(re);
+            data.content.should.not.be.null;
             done();
         });
 

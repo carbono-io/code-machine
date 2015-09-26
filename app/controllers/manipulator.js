@@ -75,17 +75,28 @@ module.exports = function (app) {
         var emitUpdate = function (data) {
             // @todo modularize this inside the socket helper lib
             var message = new Message({apiVersion: '1.0'});
+
+            var stringified = data.element.stringify(function (el) {
+                if (el.type === 'tag') {
+                    el.attribs.uuid = el.uuid;
+                }
+            });
+
             message.setData({
                 items: [
-                    data,
+                    {
+                        file: data.file,
+                        elementUuid: data.element.uuid,
+                        content: stringified,
+                    },
                 ],
             });
 
             socket.emit('control:contentUpdate', message.toJSON());
         };
 
-        // @todo identify listeners so they can be removed on disconnect.
         cm.registerUpdateListener(emitUpdate);
+        socket.on('disconnect', cm.removeUpdateListener.bind(cm, emitUpdate));
     };
 
     return this;
