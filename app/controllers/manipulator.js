@@ -5,7 +5,7 @@ var Message = require('carbono-json-messages');
 
 module.exports = function (app) {
 
-    var cm = new CM(app.options.codeDir);
+    var cm = new CM(app.options);
 
     this.editAttribute = function (socket) {
         var command = 'command:editAttribute';

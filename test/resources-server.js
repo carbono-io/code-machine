@@ -9,7 +9,7 @@ var request = require('request');
 var port = config.get('port');
 
 var serverUrl = 'http://localhost:' + port;
-var projectDir = path.join(__dirname, 'testServer');
+var codeDir = path.join(__dirname, 'testServer', 'src');
 
 var cleanPath  = '/resources/clean';
 var markedPath = '/resources/marked';
@@ -24,7 +24,7 @@ describe('Clean resources server', function () {
         request(serverUrl + reqPath, function (err, res) {
 
             var fileContents = fs.readFileSync(
-                path.join(projectDir, 'index.html'),
+                path.join(codeDir, 'index.html'),
                 utf8
             );
 
@@ -64,7 +64,7 @@ describe('Marked resources server', function () {
 
             res.body.should.not.be.false;
 
-            fs.readFileSync(path.join(projectDir, scriptPath), utf8)
+            fs.readFileSync(path.join(codeDir, scriptPath), utf8)
                 .should.eql(res.body);
 
             done();
@@ -84,7 +84,7 @@ describe('Marked resources server', function () {
 
             res.body.should.not.be.false;
 
-            fs.readFileSync(path.join(projectDir, stylesheetPath), utf8)
+            fs.readFileSync(path.join(codeDir, stylesheetPath), utf8)
                 .should.eql(res.body);
 
             done();

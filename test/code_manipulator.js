@@ -11,11 +11,15 @@ var Message = require('carbono-json-messages');
 var port = config.get('port');
 var manipulatorURL = 'http://localhost:' + port;
 
-var projectDir = path.resolve(config.get('codeDir'));
+var projectDir = path.resolve(config.get('projectDir'));
+var sourceDir = config.get('sourceDir');
+var codeDir = path.join(projectDir, sourceDir);
+
 var indexFile = 'index.html';
-var indexPath = path.join(projectDir, indexFile);
+
+var indexPath = path.join(codeDir, indexFile);
 var backupPath = path.join(__dirname, indexFile + '.bak');
-var bowerDir = path.join(projectDir, 'bower_components');
+var bowerDir = path.join(codeDir, 'bower_components');
 
 var conn;
 
@@ -54,7 +58,7 @@ describe('Code Manipulator', function () {
         var insertedText = 'Element to insert';
 
         var insert = {
-            file: 'index.html',
+            file: '/index.html',
             xpath: '/html/body',
             element: '<p>' + insertedText + '</p>',
         };
@@ -65,7 +69,7 @@ describe('Code Manipulator', function () {
         conn.emit('command:insertElementAtXPath', message.toJSON());
 
         conn.once('command:insertElementAtXPath/success', function () {
-            var domFs = new DomFs(projectDir);
+            var domFs = new DomFs(codeDir);
             var domFile = domFs.getFile(insert.file);
             var foundElement = domFile.getElementByXPath(insert.xpath + '/p');
             var foundText = foundElement.children[0].data;
@@ -83,7 +87,7 @@ describe('Code Manipulator', function () {
     it('Should be able to insert a new bower component', function (done) {
         var insert = {
             path: {
-                file: 'index.html',
+                file: '/index.html',
                 xpath: '/html/body',
             },
             html: '<iron-form></iron-form>',
@@ -101,7 +105,7 @@ describe('Code Manipulator', function () {
         conn.emit('command:insertElement', message.toJSON());
 
         conn.once('command:insertElement/success', function () {
-            var domFs = new DomFs(projectDir);
+            var domFs = new DomFs(codeDir);
             var domFile = domFs.getFile(insert.path.file);
             var formXpath = insert.path.xpath + '/iron-form';
             var ironForm = domFile.getElementByXPath(formXpath);
@@ -117,7 +121,7 @@ describe('Code Manipulator', function () {
             }, null);
             found.should.not.be.null;
 
-            var importPath = path.join(projectDir, found.attribs.href);
+            var importPath = path.join(codeDir, found.attribs.href);
             fs.statSync(importPath).isFile().should.be.true;
             done();
         });
@@ -132,7 +136,7 @@ describe('Code Manipulator', function () {
         var insertedText = 'Element to insert';
 
         var insert = {
-            file: 'index.html',
+            file: '/index.html',
             xpath: '/html/body',
             element: '<p>' + insertedText + '</p>',
         };

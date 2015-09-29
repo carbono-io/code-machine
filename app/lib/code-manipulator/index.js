@@ -3,10 +3,27 @@ var domFs = require('../dom-wrapper');
 var bower = require('bower');
 var Q = require('q');
 var _ = require('lodash');
+var fs = require('fs');
+var path = require('path');
 
-module.exports = function (codeDir) {
+module.exports = function (options) {
 
-    bower.config.cwd = codeDir;
+    /**
+     * Check if there is a .bowerrc file
+     * and use it.
+     */
+    try {
+        var brcPath = path.join(options.projectDir, '.bowerrc');
+        var brc = fs.readFileSync(brcPath, 'utf8');
+        brc = JSON.parse(brc);
+
+        _.assign(bower.config, brc);
+    } catch (e) {
+        // There is no function to check whether file exists in node,
+        // we should use fs.{{someMethod}}Sync within try-catch.
+    }
+
+    bower.config.cwd = options.projectDir;
 
     /**
      * Performs an attribute edition.
@@ -104,8 +121,19 @@ module.exports = function (codeDir) {
      * @returns {Promise}
      */
     var installComponent = function (component) {
+        var BOWER_INSTALL_OPTIONS = {
+            // The following option prevents bower from prompting the
+            // user for configs (which is done via a type of Error)
+            // and always use the latest version of libraries.
+            forceLatest: true,
+        };
+
         return Q.Promise(function (resolve, reject) {
-            bower.commands.install([component.repository], {}, bower.config)
+            bower.commands.install(
+                    [component.repository],
+                    BOWER_INSTALL_OPTIONS,
+                    bower.config
+                )
                 .on('end', function () {
                     resolve(component);
                 })
@@ -123,7 +151,7 @@ module.exports = function (codeDir) {
      * @returns {Promise}
      */
     var addComponentImport = function (component) {
-        var domFile = domFs.getFile('index.html');
+        var domFile = domFs.getFile('/index.html');
 
         var insertImport = function (importPath) {
             var head = domFile.getElementByXPath('/html/head');
@@ -145,8 +173,15 @@ module.exports = function (codeDir) {
         return Q.Promise(function (resolve, reject) {
             bower.commands.list({paths: true}, bower.config)
                 .on('end', function (components) {
-                    var compPath = components[component.name];
-                    insertImport(compPath);
+                    var compPaths = components[component.name];
+
+                    compPaths = _.isArray(compPaths) ? compPaths : [compPaths];
+
+                    compPaths.forEach(function (mainPath) {
+                        mainPath = path.relative(options.sourceDir, mainPath);
+                        insertImport(mainPath);
+                    });
+
                     resolve();
                 })
                 .on('error', function (error) {
