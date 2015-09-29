@@ -58,7 +58,7 @@ describe('Code Manipulator', function () {
         var insertedText = 'Element to insert';
 
         var insert = {
-            file: 'index.html',
+            file: '/index.html',
             xpath: '/html/body',
             element: '<p>' + insertedText + '</p>',
         };
@@ -87,7 +87,7 @@ describe('Code Manipulator', function () {
     it('Should be able to insert a new bower component', function (done) {
         var insert = {
             path: {
-                file: 'index.html',
+                file: '/index.html',
                 xpath: '/html/body',
             },
             html: '<iron-form></iron-form>',
@@ -136,7 +136,7 @@ describe('Code Manipulator', function () {
         var insertedText = 'Element to insert';
 
         var insert = {
-            file: 'index.html',
+            file: '/index.html',
             xpath: '/html/body',
             element: '<p>' + insertedText + '</p>',
         };
