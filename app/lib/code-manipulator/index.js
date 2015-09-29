@@ -151,7 +151,7 @@ module.exports = function (options) {
      * @returns {Promise}
      */
     var addComponentImport = function (component) {
-        var domFile = domFs.getFile('index.html');
+        var domFile = domFs.getFile('/index.html');
 
         var insertImport = function (importPath) {
             var head = domFile.getElementByXPath('/html/head');
