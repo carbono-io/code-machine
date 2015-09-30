@@ -6,7 +6,6 @@ module.exports = function (app) {
     app.ws
         .on('connection', function (socket) {
             manipulator.editAttribute(socket);
-            manipulator.insertElementAtXPath(socket);
             manipulator.insertElement(socket);
             manipulator.broadcastUpdates(socket);
         });

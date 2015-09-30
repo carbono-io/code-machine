@@ -39,7 +39,8 @@ function createMarkedResourcesServer(options) {
                     element.addChildren(injectImport);
                 }
                 if (element.type === 'tag') {
-                    element.attribs['x-path'] = element.getXPath();
+                    element.attribs['carbono-uuid'] = element.uuid;
+                    element.attribs['carbono-filename'] = req.path;
                 }
             },
             // Add an 'appendToHead' field and treat it in DomFs, will
