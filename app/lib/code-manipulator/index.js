@@ -50,7 +50,7 @@ module.exports = function (options) {
      *
      * @param {Object} path - path at which the code should be inserted.
      * @param {string} path.file - file path within the project.
-     * @param {string} path.xpath - xpath of parent element.
+     * @param {string} path.uuid - uuid of parent element.
      * @param {string} html - HTML code to insert.
      * @param {{name: string, repository: string}[]} components - Bower
      *      components required by the html code. Each component has
