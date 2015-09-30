@@ -26,31 +26,6 @@ module.exports = function (app) {
         });
     };
 
-    this.insertElementAtXPath = function (socket) {
-        var command = 'command:insertElementAtXPath';
-        socket.on(command, function (message) {
-            message = JSON.parse(message);
-            var reply = new Reply(socket, command, message.id);
-
-            if (!message.data.items) {
-                reply.error(400, 'No data received');
-            } else {
-                try {
-                    var data = message.data.items[0];
-                    cm.insertElementAtXPath(
-                        data.file,
-                        data.xpath,
-                        data.element,
-                        reply
-                    );
-                } catch (e) {
-                    console.log(e);
-                    reply.error(500, 'Insertion error', e);
-                }
-            }
-        });
-    };
-
     this.insertElement = function (socket) {
         var command = 'command:insertElement';
         socket.on(command, function (message) {

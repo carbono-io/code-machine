@@ -44,20 +44,6 @@ module.exports = function (options) {
     };
 
     /**
-     * Inserts html code at a location specified by path. Success or
-     * failure are reported through reply.success() and reply.failure().
-     *
-     * @param {string} file - file path within the project.
-     * @param {string} xpath - xpath of parent element.
-     * @param {string} html - HTML code to insert.
-     * @param {Object} reply - SocketReply object for success/error messages.
-     */
-    this.insertElementAtXPath = function (file, xpath, html, reply) {
-        insertHtmlAtXpath(file, xpath, html)
-            .then(reply.success.bind(reply), reply.error.bind(reply));
-    };
-
-    /**
      * Inserts html code at a location specified by path, and installs
      * possible bower components required by the inserted code. Success or
      * failure are reported through reply.success() and reply.failure().
@@ -76,32 +62,31 @@ module.exports = function (options) {
         var installPromises = components.map(installAndImport, this);
 
         Q.all(installPromises)
-            .then(_.partial(insertHtmlAtXpath, path.file, path.xpath, html))
+            .then(_.partial(insertChildrenHtml, path.file, path.uuid, html))
             .then(reply.success.bind(reply), reply.error.bind(reply));
     };
 
     /**
      * Creates a promise to insert a new html element (passed as a string) at
      * a specific location within a file's DOM.
-     * @todo Alter DomFs behavior to keep changes in memory.
      *
      * @param {string} file - file path within the code directory.
-     * @param {string} xpath - xpath where new element will be inserted.
+     * @param {string} uuid - uuid of parent element.
      * @param {string} element - HTML code to be inserted.
      * @returns {Promise}
      */
-    var insertHtmlAtXpath = function (file, xpath, element) {
+    var insertChildrenHtml = function (file, uuid, element) {
         var domFile = domFs.getFile(file);
 
         return Q.Promise(function (resolve, reject) {
             if (!file) {
                 reject(400, 'No file provided for insertion');
             }
-            if (!xpath) {
-                reject(400, 'No xPath provided for insertion');
+            if (!uuid) {
+                reject(400, 'No parent uuid provided for insertion');
             }
 
-            var parentNode = domFile.getElementByXPath(xpath);
+            var parentNode = domFile.getElementByUuid(uuid);
 
             if (element) {
                 try {
