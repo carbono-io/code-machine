@@ -104,7 +104,11 @@ module.exports = function (options) {
             var parentNode = domFile.getElementByXPath(xpath);
 
             if (element) {
-                parentNode.addChildren(element);
+                try {
+                    parentNode.addChildren(element);
+                } catch (e) {
+                    reject(500, 'REAL INTERNAL SERVER ERROR :) sorry');
+                }
             }
 
             // The new state of the file must be written to disk, so that

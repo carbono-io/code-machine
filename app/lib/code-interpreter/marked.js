@@ -10,11 +10,13 @@ var fs = require('fs');
  */
 function createMarkedResourcesServer(options) {
 
-    var carboInspectorRoute = '/assets/injected/carbo-inspector.html';
+    var carboInspectorRoute = 'assets/injected/carbo-inspector.html';
 
     var app = express();
 
-    app.get(carboInspectorRoute, function (req, res) {
+    // Add the starting `/` slash, because express attempts to
+    // use it as a pattern with less priority than `**/*.html`
+    app.get('/' + carboInspectorRoute, function (req, res) {
         fs.createReadStream(options.carboInspectorPath).pipe(res);
     });
 
