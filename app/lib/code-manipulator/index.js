@@ -8,6 +8,8 @@ var path = require('path');
 
 module.exports = function (options) {
 
+    var entityManager = require('../entity-manager')(options);
+
     /**
      * Check if there is a .bowerrc file
      * and use it.
@@ -67,6 +69,33 @@ module.exports = function (options) {
     };
 
     /**
+     * Creates a new entity, with the schema provided.
+     *
+     * @param {string} entityName - the entity's name.
+     * @param {Object} schema - the entity's schema.
+     * @param {Object} reply - SocketReply object for success/error messages.
+     */
+    this.createEntityFromSchema = function (entityName, schema, reply) {
+        if (schema) {
+            try {
+                entityManager.createEntity(entityName, schema);
+                reply.success();
+            } catch (e) {
+                reply.error({
+                    code: 500,
+                    message: 'CreateEntity error',
+                    exception: e,
+                });
+            }
+        } else {
+            reply.error({
+                code: 400,
+                message: 'No schema provided for creation',
+            });
+        }
+    };
+
+    /**
      * Creates a promise to insert a new html element (passed as a string) at
      * a specific location within a file's DOM.
      *
@@ -80,10 +109,16 @@ module.exports = function (options) {
 
         return Q.Promise(function (resolve, reject) {
             if (!file) {
-                reject(400, 'No file provided for insertion');
+                reject({
+                    code: 400,
+                    message: 'No file provided for insertion',
+                });
             }
             if (!uuid) {
-                reject(400, 'No parent uuid provided for insertion');
+                reject({
+                    code: 400,
+                    message: 'No parent uuid provided for insertion',
+                });
             }
 
             var parentNode = domFile.getElementByUuid(uuid);
@@ -92,7 +127,11 @@ module.exports = function (options) {
                 try {
                     parentNode.addChildren(element);
                 } catch (e) {
-                    reject(500, 'REAL INTERNAL SERVER ERROR :) sorry');
+                    reject({
+                        code: 500,
+                        message: 'REAL INTERNAL SERVER ERROR :) sorry',
+                        exception: e,
+                    });
                 }
             }
 
@@ -131,7 +170,11 @@ module.exports = function (options) {
                     resolve(component);
                 })
                 .on('error', function (error) {
-                    reject(500, 'Error installing component', error);
+                    reject({
+                        code: 500,
+                        message: 'Error installing component',
+                        exception: error,
+                    });
                 });
         });
     };
@@ -178,7 +221,11 @@ module.exports = function (options) {
                     resolve();
                 })
                 .on('error', function (error) {
-                    reject(500, 'Error listing components', error);
+                    reject({
+                        code: 500,
+                        message: 'Error listing components',
+                        exception: error,
+                    });
                 });
         });
     };

@@ -28,13 +28,15 @@ SocketReply.prototype.success = function (data) {
     this.sendData('success', data);
 };
 
-SocketReply.prototype.error = function (code, errorMessage, exception) {
+SocketReply.prototype.error = function (data) {
+    console.log('Operation error: ', data);
+
     var message = new Message({apiVersion: '1.0', id: this.id});
 
     var error = {
-        code: code,
-        message: errorMessage,
-        errors: [exception],
+        code: data.code,
+        message: data.message,
+        errors: ('exception' in data ? [data.exception] : []),
     };
 
     message.setError(error);

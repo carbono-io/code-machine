@@ -12,14 +12,15 @@ module.exports = function (options) {
      *  Creates a new entity in the project. The entity is saved to the
      *  project's entities.json.
      *
-     *  @param [String] entityName - name of entity to create.
-     *  @param [Object] schema - entity's schema.
+     *  @param {string} entityName - name of entity to create.
+     *  @param {?Object} schema - entity's schema.
      */
-    var createEntityFromSchema = function (entityName, schema) {
+    var createEntity = function (entityName, schema) {
         if (entityName in entities) {
-            console.log('That\'s bad... inserting entity that already exists');
-            return;
+            throw new Error('Unavailable entity name: ' + entityName);
         }
+
+        schema = schema || {};
 
         // Maybe we should validate the schema's sanity here?
 
@@ -32,7 +33,7 @@ module.exports = function (options) {
     };
 
     return {
-        createEntityFromSchema: createEntityFromSchema,
+        createEntity: createEntity,
     };
 };
 

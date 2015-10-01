@@ -22,31 +22,37 @@ var indexPath = path.join(codeDir, indexFile);
 var backupPath = path.join(codeDir, indexFile + '.bak');
 var bowerDir = path.join(codeDir, 'bower_components');
 
+var entitiesFilePath = path.join(codeDir, 'entities.json');
+
 var conn;
 
 describe('Code Manipulator', function () {
     this.timeout(30000);
 
     before(function (done) {
-        conn = io.connect(manipulatorURL);
-        conn.on('connect', done);
+        done();
     });
 
     after(function (done) {
-        if (conn.connected) {
-            conn.disconnect();
-        }
-
+        fs.writeFileSync(entitiesFilePath, '{}');
         rimraf(bowerDir, done);
     });
 
     beforeEach(function (done) {
-        var index = fs.createReadStream(indexPath);
-        index.pipe(fs.createWriteStream(backupPath));
-        index.on('end', done);
+        fs.writeFileSync(backupPath, fs.readFileSync(indexPath));
+        conn = io.connect(manipulatorURL, {
+            'reconnection delay': 0,
+            'reopen delay': 0,
+            'force new connection': true,
+        });
+        conn.on('connect', done);
     });
 
     afterEach(function (done) {
+        if (conn.connected) {
+            conn.disconnect();
+        }
+
         var backup = fs.createReadStream(backupPath);
         backup.pipe(fs.createWriteStream(indexPath));
         backup.on('end', function () {
@@ -58,7 +64,7 @@ describe('Code Manipulator', function () {
     it('Should be able to insert a new bower component', function (done) {
         var url = 'http://localhost:8000/resources/marked/index.html';
         request(url, function (err, res) {
-            var bodyUuid = /body uuid=\"(.+)\"/;
+            var bodyUuid = /body carbono-uuid=\"([\w-]*)\"/;
             var match = res.body.match(bodyUuid);
             var uuid = match[1];
 
@@ -109,12 +115,57 @@ describe('Code Manipulator', function () {
         });
     });
 
+    it('Should be able to create a new entity', function (done) {
+        var command = 'command:createEntityFromSchema';
+
+        var data = {
+            entityname: 'myEntity',
+            schema: {
+                name: 'string',
+            },
+        };
+
+        var message = new Message({apiVersion: '1.0'});
+        message.setData({items: [data]});
+
+        conn.emit(command, message.toJSON());
+
+        conn.once(command + '/success', function () {
+            done();
+        });
+
+        conn.once(command + '/error', function (err) {
+            done(err);
+        });
+    });
+
+    it('Should reply with error if no schema is given', function (done) {
+        var command = 'command:createEntityFromSchema';
+
+        var data = {
+            entityname: 'myOtherEntity',
+        };
+
+        var message = new Message({apiVersion: '1.0'});
+        message.setData({items: [data]});
+
+        conn.emit(command, message.toJSON());
+
+        conn.once(command + '/success', function () {
+            done(new Error('Operation succeeded in error scenario'));
+        });
+
+        conn.once(command + '/error', function () {
+            done();
+        });
+    });
+
     it('Should be able to notify file updates', function (done) {
         var url = 'http://localhost:8000/resources/marked/index.html';
         var re = /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/;
 
         request(url, function (err, res) {
-            var bodyUuid = /body uuid=\"(.+)\"/;
+            var bodyUuid = /body carbono-uuid=\"([\w-]*)\"/;
             var match = res.body.match(bodyUuid);
             var uuid = match[1];
 

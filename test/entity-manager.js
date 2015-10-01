@@ -21,16 +21,37 @@ describe('Entity Manager Lib', function () {
         rimraf(testDir, done);
     });
 
-    it('Should be able to create a new entity', function (done) {
+    it('Should be able to create entity with given schema', function (done) {
         var entityName = 'newEntity';
         var entitySchema = {name: 'base:String'};
 
-        em.createEntityFromSchema(entityName, entitySchema);
+        em.createEntity(entityName, entitySchema);
 
         var entities = JSON.parse(fs.readFileSync(testDir + 'entities.json'));
 
         entities.should.have.ownProperty(entityName);
         entities[entityName].should.eql(entitySchema);
+
+        done();
+    });
+
+    it('Should be able to create entity with no schema given', function (done) {
+        var entityName = 'entityWithoutSchema';
+
+        em.createEntity(entityName);
+
+        var entities = JSON.parse(fs.readFileSync(testDir + 'entities.json'));
+
+        entities.should.have.ownProperty(entityName);
+        entities[entityName].should.eql({});
+
+        done();
+    });
+
+    it('Should throw error when creating existing entity', function (done) {
+        var existingEntityName = 'newEntity';
+
+        em.createEntity.bind(null, existingEntityName).should.throw(Error);
 
         done();
     });
