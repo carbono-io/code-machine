@@ -13,7 +13,7 @@ module.exports = function (app) {
             message = JSON.parse(message);
             var reply = new Reply(socket, command, message.id);
             if (!message.items) {
-                reply.error(400, 'No data received');
+                reply.error({code: 400, message: 'No data received'});
             } else {
                 try {
                     var data = message.items[0];
@@ -33,13 +33,49 @@ module.exports = function (app) {
             var reply = new Reply(socket, command, message.id);
 
             if (!message.data.items) {
-                reply.error(400, 'No data received');
+                reply.error({code: 400, message: 'No data received'});
             } else {
                 var data = message.data.items[0];
                 cm.insertElement(
                         data.path,
                         data.html,
                         data.components,
+                        reply
+                );
+            }
+        });
+    };
+
+    this.createEntityFromSchema = function (socket) {
+        var command = 'command:createEntityFromSchema';
+        socket.on(command, function (message) {
+            message = JSON.parse(message);
+            var reply = new Reply(socket, command, message.id);
+
+            if (!message.data.items) {
+                reply.error({code: 400, message: 'No data received'});
+            } else {
+                var data = message.data.items[0];
+
+                cm.createEntityFromSchema(data.entityName, data.schema, reply);
+            }
+        });
+    };
+
+    this.bindComponentToEntity = function (socket) {
+        var command = 'command:bindComponentToEntity';
+        socket.on(command, function (message) {
+            message = JSON.parse(message);
+            var reply = new Reply(socket, command, message.id);
+
+            if (!message.data.items) {
+                reply.error({code: 400, message: 'No data received'});
+            } else {
+                var data = message.data.items[0];
+
+                cm.bindComponentToEntity(
+                        data.path,
+                        data.entityName,
                         reply
                 );
             }

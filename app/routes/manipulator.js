@@ -7,6 +7,8 @@ module.exports = function (app) {
         .on('connection', function (socket) {
             manipulator.editAttribute(socket);
             manipulator.insertElement(socket);
+            manipulator.createEntityFromSchema(socket);
+            manipulator.bindComponentToEntity(socket);
             manipulator.broadcastUpdates(socket);
         });
 
