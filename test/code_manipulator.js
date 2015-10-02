@@ -62,6 +62,7 @@ describe('Code Manipulator', function () {
     });
 
     it('Should be able to insert a new bower component', function (done) {
+        var re = /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/;
         var url = 'http://localhost:8000/resources/marked/index.html';
         request(url, function (err, res) {
             var bodyUuid = /body carbono-uuid=\"([\w-]*)\"/;
@@ -87,7 +88,8 @@ describe('Code Manipulator', function () {
 
             conn.emit('command:insertElement', message.toJSON());
 
-            conn.once('command:insertElement/success', function () {
+            conn.once('command:insertElement/success', function (message) {
+                var data = JSON.parse(message).data;
                 var domFs = new DomFs(codeDir);
                 var domFile = domFs.getFile(insert.path.file);
                 var formXpath = '/html/body/iron-form';
@@ -106,6 +108,8 @@ describe('Code Manipulator', function () {
 
                 var importPath = path.join(codeDir, found.attribs.href);
                 fs.statSync(importPath).isFile().should.be.true;
+
+                data.items[0].uuid.should.match(re);
                 done();
             });
 

@@ -29,7 +29,7 @@ module.exports = function (options) {
     };
 
     var saveEntities = function () {
-        fs.writeFileSync(entitiesFilePath, JSON.stringify(entities));
+        fs.writeFileSync(entitiesFilePath, JSON.stringify(entities, null, 4));
     };
 
     return {
