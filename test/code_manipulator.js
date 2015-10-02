@@ -119,7 +119,7 @@ describe('Code Manipulator', function () {
         var command = 'command:createEntityFromSchema';
 
         var data = {
-            entityname: 'myEntity',
+            entityName: 'myEntity',
             schema: {
                 name: 'string',
             },
@@ -143,7 +143,7 @@ describe('Code Manipulator', function () {
         var command = 'command:createEntityFromSchema';
 
         var data = {
-            entityname: 'myOtherEntity',
+            entityName: 'myOtherEntity',
         };
 
         var message = new Message({apiVersion: '1.0'});
@@ -157,6 +157,38 @@ describe('Code Manipulator', function () {
 
         conn.once(command + '/error', function () {
             done();
+        });
+    });
+
+    it('Should be able to bind a component to an entity', function (done) {
+        var url = 'http://localhost:8000/resources/marked/index.html';
+        request(url, function (err, res) {
+            var bodyUuid = /h1 carbono-uuid=\"([\w-]*)\"/;
+            var match = res.body.match(bodyUuid);
+            var uuid = match[1];
+
+            var data = {
+                path: {
+                    file: '/index.html',
+                    uuid: uuid,
+                },
+                entityName: 'myEntity',
+            };
+
+            var message = new Message({apiVersion: '1.0'});
+            message.setData({items: [data]});
+
+            var command = 'command:bindComponentToEntity';
+
+            conn.emit(command, message.toJSON());
+
+            conn.once(command + '/success', function () {
+                done();
+            });
+
+            conn.once(command + '/error', function (err) {
+                done(err);
+            });
         });
     });
 

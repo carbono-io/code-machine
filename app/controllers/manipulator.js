@@ -62,6 +62,26 @@ module.exports = function (app) {
         });
     };
 
+    this.bindComponentToEntity = function (socket) {
+        var command = 'command:bindComponentToEntity';
+        socket.on(command, function (message) {
+            message = JSON.parse(message);
+            var reply = new Reply(socket, command, message.id);
+
+            if (!message.data.items) {
+                reply.error({code: 400, message: 'No data received'});
+            } else {
+                var data = message.data.items[0];
+
+                cm.bindComponentToEntity(
+                        data.path,
+                        data.entityName,
+                        reply
+                );
+            }
+        });
+    };
+
     this.broadcastUpdates = function (socket) {
         var emitUpdate = function (data) {
             // @todo modularize this inside the socket helper lib

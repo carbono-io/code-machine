@@ -96,6 +96,32 @@ module.exports = function (options) {
     };
 
     /**
+     * Binds a component to an entity. Currently this only means creating an
+     * attribute in the component's HTML with the entity name.
+     *
+     * @param {Object} path - path to the component's HTML element.
+     * @param {string} path.file - name of the file where the component is.
+     * @param {string} path.uuid - uuid of the HTML element.
+     * @param {string} entityName - name of the entity to bind the component to.
+     * @param {Object} reply - SocketReply object for success/error messages.
+     */
+    this.bindComponentToEntity = function (path, entityName, reply) {
+        try {
+            // @todo Validate if entity exists before binding!
+            var domFile = domFs.getFile(path.file);
+            var component = domFile.getElementByUuid(path.uuid);
+            component.editAttribute('entity', entityName);
+            reply.success();
+        } catch (err) {
+            reply.error({
+                code: 500,
+                message: 'Bind error',
+                exception: err,
+            });
+        }
+    };
+
+    /**
      * Creates a promise to insert a new html element (passed as a string) at
      * a specific location within a file's DOM.
      *
