@@ -36,7 +36,7 @@ function createMarkedResourcesServer(options) {
                     element.type === 'tag' &&
                     element.name === 'head') {
 
-                    element.addChildren(injectImport);
+                    element.addChild(injectImport);
                 }
                 if (element.type === 'tag') {
                     element.attribs['carbono-uuid'] = element.uuid;

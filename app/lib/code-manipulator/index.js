@@ -151,7 +151,7 @@ module.exports = function (options) {
 
             if (element) {
                 try {
-                    parentNode.addChildren(element);
+                    var inserted = parentNode.addChild(element);
                 } catch (e) {
                     reject({
                         code: 500,
@@ -164,7 +164,12 @@ module.exports = function (options) {
             // The new state of the file must be written to disk, so that
             // the ResourceServer serves the modified file.
             domFile.write();
-            resolve();
+
+            resolve({
+                items: [
+                    {uuid: inserted.uuid},
+                ],
+            });
         });
     };
 
@@ -227,7 +232,7 @@ module.exports = function (options) {
 
             if (!found) {
                 var html = '<link rel="import" href="' + importPath + '">';
-                head.addChildren(html);
+                head.addChild(html);
                 domFile.write();
             }
         };
