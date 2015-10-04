@@ -71,11 +71,20 @@ module.exports = function (options) {
         // functions.
         // https://github.com/kriskowal/q#sequences
         // http://stackoverflow.com/questions/17757654/how-to-chain-a-variable-number-of-promises-in-q-in-order
-        var installationChain = components.reduce(function (previousPromise, component) {
-            return previousPromise.then(function () {
-                return installAndImport(component)
-            });
-        }, installAndImport(components.shift()));
+        var installationChain;
+
+        if (components.length > 0) {
+            // only build up an installation chain if there
+            // are dependencies to be installed
+            installationChain = components.reduce(function (previousPromise, component) {
+                return previousPromise.then(function () {
+                    return installAndImport(component)
+                });
+            }, installAndImport(components.shift()));
+        } else {
+            // otherwise, simply make up a promise
+            installationChain = Q();
+        }
 
         installationChain
             .then(_.partial(insertChildrenHtml, path.file, path.uuid, html))
