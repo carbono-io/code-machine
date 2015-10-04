@@ -71,11 +71,11 @@ module.exports = function (options) {
         // functions.
         // https://github.com/kriskowal/q#sequences
         // http://stackoverflow.com/questions/17757654/how-to-chain-a-variable-number-of-promises-in-q-in-order
-        var installationChain = components.reduce(function (previous, component) {
-            return previous.then(function () {
+        var installationChain = components.reduce(function (previousPromise, component) {
+            return previousPromise.then(function () {
                 return installAndImport(component)
-            })
-        }, Q.resolve(components.shift()));
+            });
+        }, installAndImport(components.shift()));
 
         installationChain
             .then(_.partial(insertChildrenHtml, path.file, path.uuid, html))
