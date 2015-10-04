@@ -61,9 +61,23 @@ module.exports = function (options) {
      * @param {Object} reply - SocketReply object for success/error messages.
      */
     this.insertElement = function (path, html, components, reply) {
-        var installPromises = components.map(installAndImport, this);
+        // Install components in sequence, so that the installation
+        // does not run into filesystem conflicts.
+        // 
+        // TODO: improve this, bower supports multiple component
+        // paralell installation, we must take advantage of that.
+        // 
+        // Some documentation on how to run sequence of promise returning
+        // functions.
+        // https://github.com/kriskowal/q#sequences
+        // http://stackoverflow.com/questions/17757654/how-to-chain-a-variable-number-of-promises-in-q-in-order
+        var installationChain = components.reduce(function (previous, component) {
+            return previous.then(function () {
+                return installAndImport(component)
+            })
+        }, Q.resolve(components.shift()));
 
-        Q.all(installPromises)
+        installationChain
             .then(_.partial(insertChildrenHtml, path.file, path.uuid, html))
             .then(reply.success.bind(reply), reply.error.bind(reply));
     };
