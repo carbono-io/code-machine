@@ -110,5 +110,22 @@ module.exports = function (app) {
         socket.on('disconnect', cm.removeUpdateListener.bind(cm, emitUpdate));
     };
 
+    this.writeCSS = function (socket) {
+        var command = 'command:writeCSS';
+        socket.on(command, function (message) {
+
+            message = JSON.parse(message);
+            var reply = new Reply(socket, command, message.id);
+
+            if (!message.data.items) {
+                reply.error({code: 400, message: 'No data received'});
+            } else {
+                var data = message.data.items[0];
+                
+                cm.writeCSS(data.path, data.value, reply);
+            }
+        });
+    };
+
     return this;
 };

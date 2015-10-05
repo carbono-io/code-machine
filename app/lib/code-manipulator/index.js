@@ -1,10 +1,16 @@
 'use strict';
-var domFs = require('../dom-wrapper');
-var bower = require('bower');
-var Q = require('q');
-var _ = require('lodash');
-var fs = require('fs');
+// Native dependencies
+var fs   = require('fs');
 var path = require('path');
+
+// External dependencies
+var bower = require('bower');
+var Q     = require('q');
+var _     = require('lodash');
+var css   = require('css');
+
+// Internal dependencies
+var domFs = require('../dom-wrapper');
 
 module.exports = function (options) {
 
@@ -143,6 +149,53 @@ module.exports = function (options) {
             });
         }
     };
+
+    /**
+     * Modifies css files
+     */
+    this.writeCSS = function (editionPath, value, reply) {
+
+        var fullPath = path.join(options.projectDir, options.sourceDir, editionPath.file);
+
+        var originalContents = fs.readFileSync(fullPath, 'utf-8');
+        var cssObject = css.parse(originalContents);
+
+        var ruleObject = findRuleObjectForSelectors(cssObject, editionPath.selectors);
+        var declarationObject = findDeclarationObjectForProperty(ruleObject, editionPath.property);
+
+        // set value
+        declarationObject.value = value;
+
+        // stringify
+        var stringified = css.stringify(cssObject);
+
+        fs.writeFileSync(fullPath, stringified, {
+            encoding: 'utf8',
+        });
+
+        reply.success();
+    };
+
+    function findRuleObjectForSelectors(cssObject, selectors) {
+        // make sure it is an array
+        selectors = _.isString(selectors) ? selectors.split(/\s*,\s*/) : selectors;
+
+        if (!selectors || selectors.length === 0) {
+            throw new Error('No selectors for findRuleObjectForSelectors');
+        }
+
+        return _.find(cssObject.stylesheet.rules, function (ruleObject) {
+            return _.every(selectors, function (s) {
+                return _.contains(ruleObject.selectors, s);
+            });
+        });
+    }
+
+    function findDeclarationObjectForProperty(ruleObject, property) {
+        return _.find(ruleObject.declarations, function (declarationObject) {
+            return declarationObject.property === property;
+        });
+    }
 
     /**
      * Creates a promise to insert a new html element (passed as a string) at

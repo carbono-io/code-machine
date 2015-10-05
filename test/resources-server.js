@@ -5,6 +5,7 @@ var config = require('config');
 
 require('chai').should();
 var request = require('request');
+var css     = require('css');
 
 var port = config.get('port');
 
@@ -104,6 +105,24 @@ describe('Marked resources server', function () {
             done();
         }).on('error', function (err) {
             done(err);
+        });
+    });
+
+    it('Serves **/*.css.json files that are the JSON version of the stylesheet', function (done) {
+
+        var stylesheetPath = 'style/test.css';
+        var reqPath = path.join(markedPath, stylesheetPath + '.json');
+
+        request(serverUrl + reqPath, function (err, res) {
+            res.body.should.not.be.false;
+
+            var contents = fs.readFileSync(path.join(codeDir, stylesheetPath), 'utf-8');
+            var cssJSON = JSON.stringify(css.parse(contents));
+
+            res.body.should.eql(cssJSON);
+
+            // finish test
+            done();
         });
     });
 
