@@ -137,14 +137,14 @@ module.exports = function (options) {
         var originalContents = fs.readFileSync(fullPath, 'utf-8');
         var cssObject = css.parse(originalContents);
 
-        var ruleObject = findRuleObjectForSelectors(cssObject, editionPath.selectors);
-        var declarationObject = findDeclarationObjectForProperty(ruleObject, editionPath.property);
+        // var ruleObject = findRuleObjectForSelectors(cssObject, editionPath.selectors);
+        // var declarationObject = findDeclarationObjectForProperty(ruleObject, editionPath.property);
 
-        // set value
-        declarationObject.value = value;
+        // // set value
+        // declarationObject.value = value;
 
         // stringify
-        var stringified = css.stringify(cssObject);
+        var stringified = css.stringify(value);
 
         fs.writeFileSync(fullPath, stringified, {
             encoding: 'utf8',
