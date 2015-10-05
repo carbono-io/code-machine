@@ -177,7 +177,10 @@ module.exports = function (options) {
                     var inserted = parentNode.addChild(element);
                 } catch (e) {
                     reject({
-                        code: 500,
+                        // set for a crazy error number,
+                        // so that we can treat it arbitrarily for 
+                        // the user tests
+                        code: 999,
                         message: 'REAL INTERNAL SERVER ERROR :) sorry',
                         exception: e,
                     });
