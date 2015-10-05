@@ -10,6 +10,7 @@ module.exports = function (app) {
             manipulator.createEntityFromSchema(socket);
             manipulator.bindComponentToEntity(socket);
             manipulator.broadcastUpdates(socket);
+            manipulator.writeCSS(socket);
         });
 
     return this;

@@ -7,6 +7,7 @@ var config = require('config');
 var rimraf = require('rimraf');
 var request = require('request');
 var DomFs = require('dom-fs');
+var css = require('css');
 var Message = require('carbono-json-messages');
 
 var port = config.get('port');
@@ -232,6 +233,56 @@ describe('Code Manipulator', function () {
             });
 
             conn.once('command:insertElement/error', function (err) {
+                done(err);
+            });
+        });
+    });
+
+    it('Should be capable of writing css values', function (done) {
+        var cssJSONUrl = 'http://localhost:8000/resources/marked/style/test.css.json';
+
+        var cssFilePath = path.join(codeDir, '/style/test.css');
+
+        // read original CSS
+        var originalCSS = fs.readFileSync(cssFilePath, 'utf-8');
+
+        request(cssJSONUrl, function (err, res) {
+
+            var cssObject = JSON.parse(res.body);
+
+            // originally white
+            cssObject.stylesheet.rules[2].declarations[0].value.should.eql('red');
+
+            var data = {
+                path: {
+                    file: '/style/test.css',
+                    selectors: 'h1',
+                    property: 'color'
+                },
+                value: 'green',
+            }
+
+            var message = new Message({ apiVersion: '1.0' });
+            message.setData({ items: [data]})
+
+            conn.emit('command:writeCSS', message.toJSON());
+
+            conn.once('command:writeCSS/success', function (message) {
+
+                var cssContents = fs.readFileSync(cssFilePath, 'utf-8');
+
+                var cssObject = css.parse(cssContents);
+
+                // VERY BAD
+                cssObject.stylesheet.rules[2].declarations[0].value.should.eql('green');
+
+                // Write css contents back
+                fs.writeFileSync(cssFilePath, originalCSS);
+
+                done();
+            });
+
+            conn.once('command:writeCSS/error', function (err) {
                 done(err);
             });
         });

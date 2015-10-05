@@ -1,9 +1,13 @@
 'use strict';
 
+// Native dependencies
+var fs   = require('fs');
+var path = require('path');
+
 // External dependencies
 var express = require('express');
-var domFs = require('../dom-wrapper');
-var fs = require('fs');
+var domFs   = require('../dom-wrapper');
+var css     = require('css');
 
 /**
  * Creates an express app for serving marked html resources
@@ -48,6 +52,21 @@ function createMarkedResourcesServer(options) {
         });
 
         res.send(markedContent);
+    });
+
+    // Intercept '.css.json' resources
+    app.get('**/*.css.json', function (req, res) {
+
+        // get the path for the original resource
+        var originalResourcePath = req.path.replace(/\.json$/, '');
+
+        originalResourcePath = path.join(options.projectDir, options.sourceDir, originalResourcePath);
+
+        var originalResourceContents = fs.readFileSync(originalResourcePath, 'utf-8');
+
+        var cssObject = css.parse(originalResourceContents);
+
+        res.json(cssObject);
     });
 
     // Then serve static files for all other extensions
