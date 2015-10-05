@@ -23,6 +23,7 @@ var backupPath = path.join(codeDir, indexFile + '.bak');
 var bowerDir = path.join(codeDir, 'bower_components');
 
 var entitiesFilePath = path.join(codeDir, 'entities.json');
+var resourcesFilePath = path.join(projectDir, 'project_resources.json');
 
 var conn;
 
@@ -35,6 +36,7 @@ describe('Code Manipulator', function () {
 
     after(function (done) {
         fs.writeFileSync(entitiesFilePath, '{}');
+        fs.writeFileSync(resourcesFilePath, '{}');
         rimraf(bowerDir, done);
     });
 

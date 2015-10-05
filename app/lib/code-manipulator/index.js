@@ -5,6 +5,7 @@ var Q = require('q');
 var _ = require('lodash');
 var fs = require('fs');
 var path = require('path');
+var projResManager = require('../project-resource-manager');
 
 module.exports = function (options) {
 
@@ -63,27 +64,29 @@ module.exports = function (options) {
     this.insertElement = function (path, html, components, reply) {
         // Install components in sequence, so that the installation
         // does not run into filesystem conflicts.
-        // 
+        //
         // TODO: improve this, bower supports multiple component
         // paralell installation, we must take advantage of that.
-        // 
+        //
         // Some documentation on how to run sequence of promise returning
         // functions.
         // https://github.com/kriskowal/q#sequences
-        // http://stackoverflow.com/questions/17757654/how-to-chain-a-variable-number-of-promises-in-q-in-order
+        // http://stackoverflow.com/questions/17757654/how-to-chain-a-variable\
+        // -number-of-promises-in-q-in-order
         var installationChain;
 
         if (components.length > 0) {
-            // only build up an installation chain if there
+            // Only build up an installation chain if there
             // are dependencies to be installed
-            installationChain = components.reduce(function (previousPromise, component) {
+            installationChain = components.reduce(
+                    function (previousPromise, component) {
                 return previousPromise.then(function () {
-                    return installAndImport(component)
+                    return installAndImport(component);
                 });
             }, installAndImport(components.shift()));
         } else {
-            // otherwise, simply make up a promise
-            installationChain = Q();
+            // Otherwise, simply make up a promise
+            installationChain = new Q();
         }
 
         installationChain
@@ -101,7 +104,8 @@ module.exports = function (options) {
     this.createEntityFromSchema = function (entityName, schema, reply) {
         if (schema) {
             try {
-                entityManager.createEntity(entityName, schema);
+                var route = projResManager.getCrudRoute();
+                entityManager.createEntity(entityName, route, schema);
                 reply.success();
             } catch (e) {
                 reply.error({

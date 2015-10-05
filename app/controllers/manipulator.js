@@ -2,6 +2,7 @@
 var CM = require('../lib/code-manipulator');
 var Reply = require('../lib/socket-reply');
 var Message = require('carbono-json-messages');
+var PRM = require('../lib/project-resource-manager');
 
 module.exports = function (app) {
 
@@ -108,6 +109,11 @@ module.exports = function (app) {
 
         cm.registerUpdateListener(emitUpdate);
         socket.on('disconnect', cm.removeUpdateListener.bind(cm, emitUpdate));
+    };
+
+    this.registerSocket = function (socket) {
+        PRM.setSocket(socket);
+        socket.on('disconnect', PRM.removeSocket.bind(PRM,socket));
     };
 
     return this;
