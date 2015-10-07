@@ -13,18 +13,25 @@ module.exports = function (options) {
      *  project's entities.json.
      *
      *  @param {string} entityName - name of entity to create.
+     *  @param {string} route - route to the CRUDr responsible for this entity.
      *  @param {?Object} schema - entity's schema.
      */
-    var createEntity = function (entityName, schema) {
+    var createEntity = function (entityName, route, schema) {
         if (entityName in entities) {
             throw new Error('Unavailable entity name: ' + entityName);
+        }
+        if (!route) {
+            throw new Error('CRUDr route not provided for entity creation');
         }
 
         schema = schema || {};
 
         // Maybe we should validate the schema's sanity here?
 
-        entities[entityName] = schema;
+        entities[entityName] = {
+            route: route,
+            schema: schema,
+        };
         saveEntities();
     };
 
