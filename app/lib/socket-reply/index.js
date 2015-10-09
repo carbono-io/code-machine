@@ -9,11 +9,15 @@ var SocketReply = function (socket, command, id) {
 };
 
 SocketReply.prototype.sendData = function (eventType, data) {
-    var message = new Message({apiVersion: '1.0', id: this.id});
+    var message = new Message({
+        apiVersion: '1.0',
+        id: this.id,
+        method: this.command,
+    });
 
     message.setData(data);
 
-    this.socket.emit(this.command + '/' +  eventType, message.toJSON());
+    this.socket.emit(eventType, message.toJSON());
 };
 
 SocketReply.prototype.notify = function (data) {
@@ -31,7 +35,11 @@ SocketReply.prototype.success = function (data) {
 SocketReply.prototype.error = function (data) {
     console.log('Operation error: ', data);
 
-    var message = new Message({apiVersion: '1.0', id: this.id});
+    var message = new Message({
+        apiVersion: '1.0',
+        id: this.id,
+        method: this.command,
+    });
 
     var error = {
         code: data.code,
@@ -41,7 +49,7 @@ SocketReply.prototype.error = function (data) {
 
     message.setError(error);
 
-    this.socket.emit(this.command + '/error', message.toJSON());
+    this.socket.emit('failure', message.toJSON());
 };
 
 module.exports = SocketReply;

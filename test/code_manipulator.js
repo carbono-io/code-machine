@@ -90,10 +90,14 @@ describe('Code Manipulator', function () {
 
             conn.emit('command:insertElement', message.toJSON());
 
-            conn.once('command:insertElement/success', function (message) {
-                var data = JSON.parse(message).data;
+            conn.once('success', function (reply) {
+                var msg = JSON.parse(reply);
+                var data = msg.data;
                 var domFs = new DomFs(codeDir);
                 var domFile = domFs.getFile(insert.path.file);
+
+                msg.id.should.eql(message.id);
+
                 var formXpath = '/html/body/iron-form';
                 var ironForm = domFile.getElementByXPath(formXpath);
                 ironForm.should.not.be.null;
@@ -115,8 +119,11 @@ describe('Code Manipulator', function () {
                 done();
             });
 
-            conn.once('command:insertElement/error', function (err) {
-                done(err);
+            conn.once('failure', function (reply) {
+                var msg = JSON.parse(reply);
+                if (msg.id === message.id) {
+                    done(reply.error);
+                }
             });
         });
     });
@@ -136,12 +143,18 @@ describe('Code Manipulator', function () {
 
         conn.emit(command, message.toJSON());
 
-        conn.once(command + '/success', function () {
-            done();
+        conn.once('success', function (reply) {
+            var msg = JSON.parse(reply);
+            if (msg.id === message.id) {
+                done();
+            }
         });
 
-        conn.once(command + '/error', function (err) {
-            done(err);
+        conn.once('failure', function (reply) {
+            var msg = JSON.parse(reply);
+            if (msg.id === message.id) {
+                done(reply.error);
+            }
         });
     });
 
@@ -157,12 +170,18 @@ describe('Code Manipulator', function () {
 
         conn.emit(command, message.toJSON());
 
-        conn.once(command + '/success', function () {
-            done(new Error('Operation succeeded in error scenario'));
+        conn.once('success', function (reply) {
+            var msg = JSON.parse(reply);
+            if (msg.id === message.id) {
+                done(new Error('Operation succeeded in error scenario'));
+            }
         });
 
-        conn.once(command + '/error', function () {
-            done();
+        conn.once('failure', function (reply) {
+            var msg = JSON.parse(reply);
+            if (msg.id === message.id) {
+                done();
+            }
         });
     });
 
@@ -188,12 +207,18 @@ describe('Code Manipulator', function () {
 
             conn.emit(command, message.toJSON());
 
-            conn.once(command + '/success', function () {
-                done();
+            conn.once('success', function (reply) {
+                var msg = JSON.parse(reply);
+                if (msg.id === message.id) {
+                    done();
+                }
             });
 
-            conn.once(command + '/error', function (err) {
-                done(err);
+            conn.once('failure', function (reply) {
+                var msg = JSON.parse(reply);
+                if (msg.id === message.id) {
+                    done(reply.error);
+                }
             });
         });
     });
@@ -224,17 +249,20 @@ describe('Code Manipulator', function () {
 
             conn.emit('command:insertElement', message.toJSON());
 
-            conn.once('control:contentUpdate', function (message) {
-                message = JSON.parse(message);
-                var data = message.data.items[0];
+            conn.once('control:contentUpdate', function (reply) {
+                var msg = JSON.parse(reply);
+                var data = msg.data.items[0];
                 data.file.should.eql(insert.path.file);
                 data.elementUuid.should.match(re);
                 data.content.should.not.be.null;
                 done();
             });
 
-            conn.once('command:insertElement/error', function (err) {
-                done(err);
+            conn.once('failure', function (reply) {
+                var msg = JSON.parse(reply);
+                if (msg.id === message.id) {
+                    done(reply.error);
+                }
             });
         });
     });
