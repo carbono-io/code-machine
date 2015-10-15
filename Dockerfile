@@ -2,6 +2,12 @@ FROM node
 COPY . /code-machine
 RUN mkdir /code
 
+# NODE_ENV for configurations
+ENV NODE_ENV HOM
+
 EXPOSE 8000
 
-CMD ["/bin/sh", "-c", "cd /code-machine && node ."]
+# set the working dir to the code machine directory
+WORKDIR /code-machine
+
+CMD ["node", "index.js"]
