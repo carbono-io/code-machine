@@ -34,7 +34,7 @@ To run the service from a new container
 
 Once the image is on the registry server (and it is accessible), execute:
 
-```docker run -dP <registry_server>/<image_name>```
+```docker run -dP -v /path/to/front-end-project:/code <registry_server>/<image_name>```
 
 Running and testing
 
