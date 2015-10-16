@@ -55,12 +55,9 @@ describe('Code Manipulator', function () {
             conn.disconnect();
         }
 
-        var backup = fs.createReadStream(backupPath);
-        backup.pipe(fs.createWriteStream(indexPath));
-        backup.on('end', function () {
-            fs.unlink(backupPath);
-            done();
-        });
+        fs.writeFileSync(indexPath, fs.readFileSync(backupPath));
+        fs.unlink(backupPath);
+        done();
     });
 
     it('Should be able to insert a new bower component', function (done) {
@@ -90,7 +87,7 @@ describe('Code Manipulator', function () {
 
             conn.emit('command:insertElement', message.toJSON());
 
-            conn.once('success', function (reply) {
+            conn.once('status:success', function (reply) {
                 var msg = JSON.parse(reply);
                 var data = msg.data;
                 var domFs = new DomFs(codeDir);
@@ -119,7 +116,7 @@ describe('Code Manipulator', function () {
                 done();
             });
 
-            conn.once('failure', function (reply) {
+            conn.once('status:failure', function (reply) {
                 var msg = JSON.parse(reply);
                 if (msg.id === message.id) {
                     done(reply.error);
@@ -143,14 +140,14 @@ describe('Code Manipulator', function () {
 
         conn.emit(command, message.toJSON());
 
-        conn.once('success', function (reply) {
+        conn.once('status:success', function (reply) {
             var msg = JSON.parse(reply);
             if (msg.id === message.id) {
                 done();
             }
         });
 
-        conn.once('failure', function (reply) {
+        conn.once('status:failure', function (reply) {
             var msg = JSON.parse(reply);
             if (msg.id === message.id) {
                 done(reply.error);
@@ -170,14 +167,14 @@ describe('Code Manipulator', function () {
 
         conn.emit(command, message.toJSON());
 
-        conn.once('success', function (reply) {
+        conn.once('status:success', function (reply) {
             var msg = JSON.parse(reply);
             if (msg.id === message.id) {
                 done(new Error('Operation succeeded in error scenario'));
             }
         });
 
-        conn.once('failure', function (reply) {
+        conn.once('status:failure', function (reply) {
             var msg = JSON.parse(reply);
             if (msg.id === message.id) {
                 done();
@@ -207,14 +204,14 @@ describe('Code Manipulator', function () {
 
             conn.emit(command, message.toJSON());
 
-            conn.once('success', function (reply) {
+            conn.once('status:success', function (reply) {
                 var msg = JSON.parse(reply);
                 if (msg.id === message.id) {
                     done();
                 }
             });
 
-            conn.once('failure', function (reply) {
+            conn.once('status:failure', function (reply) {
                 var msg = JSON.parse(reply);
                 if (msg.id === message.id) {
                     done(reply.error);
@@ -258,7 +255,7 @@ describe('Code Manipulator', function () {
                 done();
             });
 
-            conn.once('failure', function (reply) {
+            conn.once('status:failure', function (reply) {
                 var msg = JSON.parse(reply);
                 if (msg.id === message.id) {
                     done(reply.error);

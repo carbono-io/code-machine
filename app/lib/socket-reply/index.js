@@ -17,7 +17,7 @@ SocketReply.prototype.sendData = function (eventType, data) {
 
     message.setData(data);
 
-    this.socket.emit(eventType, message.toJSON());
+    this.socket.emit('status:' + eventType, message.toJSON());
 };
 
 SocketReply.prototype.notify = function (data) {
@@ -49,7 +49,7 @@ SocketReply.prototype.error = function (data) {
 
     message.setError(error);
 
-    this.socket.emit('failure', message.toJSON());
+    this.socket.emit('status:failure', message.toJSON());
 };
 
 module.exports = SocketReply;
