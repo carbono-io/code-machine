@@ -32,7 +32,7 @@
     "async": "^1.4.2",
     "bower": "^1.5.2",
     "carbo-inspector": "git+ssh://git@github.com/carbono-io/carbo-inspector.git",
-    "carbono-json-messages": "git+ssh://git@bitbucket.org/carbonoio/carbono-json-messages.git",
+    "carbono-json-messages": "0.0.3",
     "commander": "^2.8.1",
     "config": "^1.15.0",
     "consign": "^0.1.1",
