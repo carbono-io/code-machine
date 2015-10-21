@@ -1,6 +1,6 @@
 {
   "name": "code-machine",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -13,10 +13,33 @@
   },
   "license": "ISC",
   "devDependencies": {
+    "chai": "3.2.0",
     "gulp": "3.9.0",
+    "gulp-istanbul": "0.10.0",
     "gulp-jscs": "2.0.0",
-    "gulp-notify": "2.2.0",
     "gulp-jshint": "1.11.2",
-    "jshint-stylish": "2.0.1"
+    "gulp-mocha": "2.1.3",
+    "gulp-nodemon": "^2.0.3",
+    "gulp-notify": "2.2.0",
+    "jsdoc": "3.3.2",
+    "jshint-stylish": "2.0.1",
+    "mocha": "2.2.5",
+    "request": "^2.60.0",
+    "rimraf": "^2.4.3",
+    "socket.io-client": "^1.3.6"
+  },
+  "dependencies": {
+    "async": "^1.4.2",
+    "bower": "^1.5.2",
+    "carbo-inspector": "git+ssh://git@github.com/carbono-io/carbo-inspector.git",
+    "carbono-json-messages": "0.0.3",
+    "commander": "^2.8.1",
+    "config": "^1.15.0",
+    "consign": "^0.1.1",
+    "dom-fs": "^2.1.3",
+    "express": "^4.13.3",
+    "lodash": "^3.10.1",
+    "q": "^1.4.1",
+    "socket.io": "^1.3.6"
   }
 }
