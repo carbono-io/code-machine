@@ -18,6 +18,15 @@ function createMarkedResourcesServer(options) {
 
     var app = express();
 
+    // Definetly this should not be 
+    // done in production.
+    // Allow only access to some domains
+    app.use(function(req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        next();
+    });
+
     // Add the starting `/` slash, because express attempts to
     // use it as a pattern with less priority than `**/*.html`
     app.get('/' + carboInspectorRoute, function (req, res) {

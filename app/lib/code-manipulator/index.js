@@ -67,9 +67,32 @@ module.exports = function (options) {
      * @param {Object} reply - SocketReply object for success/error messages.
      */
     this.insertElement = function (path, html, components, reply) {
-        var installPromises = components.map(installAndImport, this);
+        // Install components in sequence, so that the installation
+        // does not run into filesystem conflicts.
+        // 
+        // TODO: improve this, bower supports multiple component
+        // paralell installation, we must take advantage of that.
+        // 
+        // Some documentation on how to run sequence of promise returning
+        // functions.
+        // https://github.com/kriskowal/q#sequences
+        // http://stackoverflow.com/questions/17757654/how-to-chain-a-variable-number-of-promises-in-q-in-order
+        var installationChain;
 
-        Q.all(installPromises)
+        if (components.length > 0) {
+            // only build up an installation chain if there
+            // are dependencies to be installed
+            installationChain = components.reduce(function (previousPromise, component) {
+                return previousPromise.then(function () {
+                    return installAndImport(component)
+                });
+            }, installAndImport(components.shift()));
+        } else {
+            // otherwise, simply make up a promise
+            installationChain = Q();
+        }
+
+        installationChain
             .then(_.partial(insertChildrenHtml, path.file, path.uuid, html))
             .then(reply.success.bind(reply), reply.error.bind(reply));
     };
@@ -137,14 +160,14 @@ module.exports = function (options) {
         var originalContents = fs.readFileSync(fullPath, 'utf-8');
         var cssObject = css.parse(originalContents);
 
-        var ruleObject = findRuleObjectForSelectors(cssObject, editionPath.selectors);
-        var declarationObject = findDeclarationObjectForProperty(ruleObject, editionPath.property);
+        // var ruleObject = findRuleObjectForSelectors(cssObject, editionPath.selectors);
+        // var declarationObject = findDeclarationObjectForProperty(ruleObject, editionPath.property);
 
-        // set value
-        declarationObject.value = value;
+        // // set value
+        // declarationObject.value = value;
 
         // stringify
-        var stringified = css.stringify(cssObject);
+        var stringified = css.stringify(value);
 
         fs.writeFileSync(fullPath, stringified, {
             encoding: 'utf8',
@@ -207,7 +230,10 @@ module.exports = function (options) {
                     var inserted = parentNode.addChild(element);
                 } catch (e) {
                     reject({
-                        code: 500,
+                        // set for a crazy error number,
+                        // so that we can treat it arbitrarily for 
+                        // the user tests
+                        code: 999,
                         message: 'REAL INTERNAL SERVER ERROR :) sorry',
                         exception: e,
                     });
